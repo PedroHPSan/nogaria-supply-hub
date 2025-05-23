@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -52,21 +53,21 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				}
+				// Nogaria Brand Colors
+				'dark-navy': '#0b162d',
+				'deep-blue': '#02477e',
+				'azure': '#0080d7',
+				'sky-blue': '#2ebcde',
+				'neon-green': '#52ff7f',
+				'grass-green': '#4ccc6a',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				'gotham': ['Gotham', 'Helvetica Neue', 'Arial', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
@@ -84,11 +85,35 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in-up': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(20px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'gradient-shift': {
+					'0%, 100%': {
+						'background-position': '0% 50%'
+					},
+					'50%': {
+						'background-position': '100% 50%'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in-up': 'fade-in-up 0.6s ease-out',
+				'gradient-shift': 'gradient-shift 3s ease-in-out infinite',
+			},
+			backgroundImage: {
+				'gradient-nogaria': 'linear-gradient(135deg, #0080d7 0%, #2ebcde 50%, #52ff7f 100%)',
+				'gradient-hero': 'linear-gradient(135deg, #0b162d 0%, #02477e 100%)',
 			}
 		}
 	},
