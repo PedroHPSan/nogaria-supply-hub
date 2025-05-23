@@ -1,8 +1,7 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Droplet, 
-  Soap, 
+  Sparkles, 
   HardHat, 
   Utensils, 
   Package, 
@@ -21,7 +20,7 @@ const CategoriesGrid = () => {
     },
     {
       name: 'Higiene',
-      icon: Soap,
+      icon: Sparkles,
       color: 'from-sky-blue to-grass-green',
       products: '150+ produtos'
     },
