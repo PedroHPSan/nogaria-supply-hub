@@ -114,6 +114,9 @@ export default {
 			backgroundImage: {
 				'gradient-nogaria': 'linear-gradient(135deg, #0080d7 0%, #2ebcde 50%, #52ff7f 100%)',
 				'gradient-hero': 'linear-gradient(135deg, #0b162d 0%, #02477e 100%)',
+				'gradient-midnight': 'linear-gradient(to bottom, #0b162d, #2ebcde)',
+				'gradient-sky-green': 'linear-gradient(to right, #2ebcde, #4ccc6a)',
+				'gradient-green-blue': 'linear-gradient(to bottom, #52ff7f, #2ebcde)',
 			}
 		}
 	},
