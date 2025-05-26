@@ -9,7 +9,7 @@ const Header = () => {
   const navItems = [
     { label: 'Categorias', href: '#categorias' },
     { label: 'Assinaturas', href: '/assinaturas' },
-    { label: 'Atacado', href: '/atacado' },
+    { label: 'Catálogo', href: '/catalog' },
     { label: 'Sobre', href: '/sobre' },
     { label: 'Contato', href: '#contato' },
   ];
