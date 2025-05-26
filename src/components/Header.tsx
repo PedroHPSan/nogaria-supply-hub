@@ -2,17 +2,47 @@
 import { useState } from 'react';
 import { Menu, X, Search, User, ShoppingCart, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navItems = [
-    { label: 'Categorias', href: '#categorias' },
+    { label: 'Inicio', href: '/' },
     { label: 'Assinaturas', href: '/assinaturas' },
     { label: 'Catálogo', href: '/catalog' },
     { label: 'Sobre', href: '/sobre' },
     { label: 'Contato', href: '#contato' },
   ];
+
+  // Get cart items from localStorage
+  const getCartCount = () => {
+    try {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      return cart.length;
+    } catch {
+      return 0;
+    }
+  };
+
+  const handleCartClick = () => {
+    navigate('/checkout');
+  };
+
+  const handleNavClick = (href: string) => {
+    if (href.startsWith('#')) {
+      // Handle anchor links
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Handle navigation
+      navigate(href);
+    }
+    setIsMenuOpen(false);
+  };
 
   return (
     <header className="bg-gradient-to-b from-dark-navy to-sky-blue text-white shadow-lg sticky top-0 z-50">
@@ -34,7 +64,7 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
             <img 
               src="/lovable-uploads/30145d0a-0baf-4fc4-86a4-2c72d1be5c67.png" 
               alt="Nogária Logo" 
@@ -67,10 +97,14 @@ const Header = () => {
               <span>Minha Conta</span>
             </Button>
             
-            <Button variant="ghost" className="relative text-white hover:text-neon-green hover:bg-white/10">
+            <Button 
+              variant="ghost" 
+              className="relative text-white hover:text-neon-green hover:bg-white/10"
+              onClick={handleCartClick}
+            >
               <ShoppingCart className="w-6 h-6" />
               <span className="absolute -top-2 -right-2 bg-neon-green text-dark-navy text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                0
+                {getCartCount()}
               </span>
             </Button>
 
@@ -102,12 +136,12 @@ const Header = () => {
           <ul className="flex space-x-8">
             {navItems.map((item) => (
               <li key={item.label}>
-                <a
-                  href={item.href}
+                <button
+                  onClick={() => handleNavClick(item.href)}
                   className="text-white/90 hover:text-neon-green font-medium transition-colors duration-200 py-2 border-b-2 border-transparent hover:border-neon-green"
                 >
                   {item.label}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
@@ -121,13 +155,12 @@ const Header = () => {
             <ul className="space-y-4">
               {navItems.map((item) => (
                 <li key={item.label}>
-                  <a
-                    href={item.href}
-                    className="block text-white/90 hover:text-neon-green font-medium py-2"
-                    onClick={() => setIsMenuOpen(false)}
+                  <button
+                    onClick={() => handleNavClick(item.href)}
+                    className="block text-white/90 hover:text-neon-green font-medium py-2 w-full text-left"
                   >
                     {item.label}
-                  </a>
+                  </button>
                 </li>
               ))}
               <li>
