@@ -1,8 +1,11 @@
 
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Truck, CreditCard, RotateCcw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const HeroBanner = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="bg-gradient-to-b from-dark-navy to-sky-blue text-white relative overflow-hidden">
       {/* Background decorative elements */}
@@ -47,6 +50,7 @@ const HeroBanner = () => {
             <Button 
               size="lg"
               variant="outline" 
+              onClick={() => navigate('/assinaturas')}
               className="border-2 border-azure text-azure hover:bg-azure hover:text-white px-8 py-4 text-lg font-semibold rounded-lg transition-all duration-300"
             >
               Assine mensalmente

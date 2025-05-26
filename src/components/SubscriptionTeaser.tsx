@@ -2,27 +2,30 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, DollarSign, Truck, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const SubscriptionTeaser = () => {
+  const navigate = useNavigate();
+
   const plans = [
     {
-      name: 'Essencial',
-      price: 'R$ 299',
+      name: 'Starter',
+      price: 'R$ 349',
       period: '/mês',
       color: 'from-azure to-deep-blue',
-      features: ['Produtos básicos de limpeza', 'Entrega mensal', 'Suporte via email']
+      features: ['Produtos básicos de limpeza', 'Entrega mensal', 'Suporte via WhatsApp']
     },
     {
       name: 'Premium',
-      price: 'R$ 499',
+      price: 'R$ 529',
       period: '/mês', 
       color: 'from-sky-blue to-grass-green',
       features: ['Linha completa + EPI', 'Entrega quinzenal', 'Gerente dedicado'],
       popular: true
     },
     {
-      name: 'Full Office',
-      price: 'R$ 799',
+      name: 'PRO',
+      price: 'R$ 879',
       period: '/mês',
       color: 'from-grass-green to-neon-green',
       features: ['Todas as categorias', 'Entrega semanal', 'Consultoria inclusa']
@@ -118,6 +121,7 @@ const SubscriptionTeaser = () => {
                       ? 'bg-neon-green hover:bg-grass-green text-dark-navy' 
                       : 'bg-azure hover:bg-deep-blue text-white'
                   }`}
+                  onClick={() => navigate('/assinaturas')}
                 >
                   Escolher plano
                 </Button>
@@ -130,6 +134,7 @@ const SubscriptionTeaser = () => {
           <Button 
             variant="outline"
             size="lg"
+            onClick={() => navigate('/assinaturas')}
             className="border-2 border-azure text-azure hover:bg-azure hover:text-white px-8 py-4 text-lg font-semibold"
           >
             Explorar todos os planos
