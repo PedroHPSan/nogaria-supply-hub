@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { Menu, X, Search, User, ShoppingCart, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
@@ -9,7 +9,8 @@ const Header = () => {
   const navigate = useNavigate();
 
   const navItems = [
-    { label: 'Inicio', href: '/' },
+    { label: 'Início', href: '/' },
+    { label: 'Calcule sua necessidade', href: '/calculator', isNew: true },
     { label: 'Assinaturas', href: '/assinaturas' },
     { label: 'Catálogo', href: '/catalog' },
     { label: 'Sobre', href: '/sobre' },
@@ -135,12 +136,17 @@ const Header = () => {
         <nav className="hidden md:block mt-4">
           <ul className="flex space-x-8">
             {navItems.map((item) => (
-              <li key={item.label}>
+              <li key={item.label} className="relative">
                 <button
                   onClick={() => handleNavClick(item.href)}
-                  className="text-white/90 hover:text-neon-green font-medium transition-colors duration-200 py-2 border-b-2 border-transparent hover:border-neon-green"
+                  className="text-white/90 hover:text-neon-green font-medium transition-colors duration-200 py-2 border-b-2 border-transparent hover:border-neon-green flex items-center gap-2"
                 >
                   {item.label}
+                  {item.isNew && (
+                    <Badge variant="secondary" className="bg-neon-green text-dark-navy text-xs font-bold px-2 py-1">
+                      NEW
+                    </Badge>
+                  )}
                 </button>
               </li>
             ))}
@@ -157,9 +163,14 @@ const Header = () => {
                 <li key={item.label}>
                   <button
                     onClick={() => handleNavClick(item.href)}
-                    className="block text-white/90 hover:text-neon-green font-medium py-2 w-full text-left"
+                    className="block text-white/90 hover:text-neon-green font-medium py-2 w-full text-left flex items-center gap-2"
                   >
                     {item.label}
+                    {item.isNew && (
+                      <Badge variant="secondary" className="bg-neon-green text-dark-navy text-xs font-bold px-2 py-1">
+                        NEW
+                      </Badge>
+                    )}
                   </button>
                 </li>
               ))}

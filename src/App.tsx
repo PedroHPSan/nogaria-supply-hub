@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Assinaturas from "./pages/Assinaturas";
 import Catalog from "./pages/Catalog";
+import Calculator from "./pages/Calculator";
 import Checkout from "./pages/Checkout";
 import CheckoutConfirmation from "./pages/CheckoutConfirmation";
 import CategoryIT from "./pages/CategoryIT";
@@ -22,6 +23,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/calculator" element={<Calculator />} />
           <Route path="/assinaturas" element={<Assinaturas />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/checkout" element={<Checkout />} />
