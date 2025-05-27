@@ -11,6 +11,9 @@ import Calculator from "./pages/Calculator";
 import Checkout from "./pages/Checkout";
 import CheckoutConfirmation from "./pages/CheckoutConfirmation";
 import CategoryIT from "./pages/CategoryIT";
+import Sobre from "./pages/Sobre";
+import Contato from "./pages/Contato";
+import TrabalheConosco from "./pages/TrabalheConosco";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />
           <Route path="/catalog/it" element={<CategoryIT />} />
+          <Route path="/sobre" element={<Sobre />} />
+          <Route path="/contato" element={<Contato />} />
+          <Route path="/trabalhe-conosco" element={<TrabalheConosco />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

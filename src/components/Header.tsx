@@ -14,7 +14,8 @@ const Header = () => {
     { label: 'Assinaturas', href: '/assinaturas' },
     { label: 'Catálogo', href: '/catalog' },
     { label: 'Sobre', href: '/sobre' },
-    { label: 'Contato', href: '#contato' },
+    { label: 'Contato', href: '/contato' },
+    { label: 'Trabalhe conosco', href: '/trabalhe-conosco' },
   ];
 
   // Get cart items from localStorage
