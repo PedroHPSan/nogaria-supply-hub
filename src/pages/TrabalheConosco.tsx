@@ -1,4 +1,3 @@
-
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { People, FileUpload, Mail, Star, Users, TrendingUp } from 'lucide-react';
+import { Users, Upload, Mail, Star, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -107,7 +106,7 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
               className="bg-grass-green hover:bg-neon-green text-dark-navy px-8 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={() => document.getElementById('candidatura-form')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <People className="mr-2 w-5 h-5" />
+              <Users className="mr-2 w-5 h-5" />
               Candidate-se agora
             </Button>
           </div>
@@ -244,7 +243,7 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
                     type="submit"
                     className="w-full bg-grass-green hover:bg-neon-green text-white font-gotham font-semibold py-3 text-lg"
                   >
-                    <FileUpload className="w-5 h-5 mr-2" />
+                    <Upload className="w-5 h-5 mr-2" />
                     Enviar candidatura
                   </Button>
                 </form>
