@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Menu, X, Search, User, ShoppingCart, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -52,11 +53,15 @@ const Header = () => {
       <div className="bg-dark-navy/80 backdrop-blur-sm text-white py-2">
         <div className="container mx-auto px-4 flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
-            <span>📞 Atendimento: (91) 99999-9999</span>
+            <span>📞 Atendimento: (91) 99371-7808</span>
             <span>📧 vendas@nogaria.com.br</span>
           </div>
           <div className="hidden md:flex items-center gap-2">
-            <Phone className="w-4 h-4" />
+            <img 
+              src="/lovable-uploads/65be387d-156c-4cb1-aa9a-e3ba406c6226.png" 
+              alt="WhatsApp Business" 
+              className="w-4 h-4"
+            />
             <span>WhatsApp Business</span>
           </div>
         </div>
