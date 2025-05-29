@@ -1,13 +1,16 @@
-
 import { useState } from 'react';
 import { Menu, X, Search, User, ShoppingCart, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { cartCount } = useCart();
 
   const navItems = [
     { label: 'Início', href: '/' },
@@ -18,16 +21,6 @@ const Header = () => {
     { label: 'Contato', href: '/contato' },
     { label: 'Trabalhe conosco', href: '/trabalhe-conosco' },
   ];
-
-  // Get cart items from localStorage
-  const getCartCount = () => {
-    try {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      return cart.length;
-    } catch {
-      return 0;
-    }
-  };
 
   const handleCartClick = () => {
     navigate('/checkout');
@@ -45,6 +38,14 @@ const Header = () => {
       navigate(href);
     }
     setIsMenuOpen(false);
+  };
+
+  const handleAuthClick = () => {
+    if (user) {
+      signOut();
+    } else {
+      navigate('/auth');
+    }
   };
 
   return (
@@ -99,9 +100,13 @@ const Header = () => {
 
           {/* Action buttons */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="hidden md:flex items-center gap-2 text-white hover:text-neon-green hover:bg-white/10">
+            <Button 
+              variant="ghost" 
+              className="hidden md:flex items-center gap-2 text-white hover:text-neon-green hover:bg-white/10"
+              onClick={handleAuthClick}
+            >
               <User className="w-5 h-5" />
-              <span>Minha Conta</span>
+              <span>{user ? 'Sair' : 'Minha Conta'}</span>
             </Button>
             
             <Button 
@@ -111,7 +116,7 @@ const Header = () => {
             >
               <ShoppingCart className="w-6 h-6" />
               <span className="absolute -top-2 -right-2 bg-neon-green text-dark-navy text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                {getCartCount()}
+                {cartCount}
               </span>
             </Button>
 
@@ -181,9 +186,13 @@ const Header = () => {
                 </li>
               ))}
               <li>
-                <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  onClick={handleAuthClick}
+                >
                   <User className="w-4 h-4 mr-2" />
-                  Minha Conta
+                  {user ? 'Sair' : 'Minha Conta'}
                 </Button>
               </li>
             </ul>
