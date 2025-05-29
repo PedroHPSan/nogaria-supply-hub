@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useContactForm } from '@/hooks/useContactForm';
 
 const Contato = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +18,8 @@ const Contato = () => {
     telefone: '',
     mensagem: ''
   });
-  const { toast } = useToast();
+  
+  const { submitForm, isSubmitting } = useContactForm();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -28,26 +29,21 @@ const Contato = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create mailto link
-    const subject = `Contato do site - ${formData.empresa}`;
-    const body = `Nome: ${formData.nomeCompleto}
-Empresa: ${formData.empresa}
-E-mail: ${formData.email}
-Telefone: ${formData.telefone}
-
-Mensagem:
-${formData.mensagem}`;
-
-    const mailtoLink = `mailto:contato@nogaria.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-
-    toast({
-      title: "Mensagem enviada!",
-      description: "Seu cliente de e-mail foi aberto. Obrigado pelo contato!",
-    });
+    const result = await submitForm(formData);
+    
+    if (result.success) {
+      // Reset form
+      setFormData({
+        nomeCompleto: '',
+        empresa: '',
+        email: '',
+        telefone: '',
+        mensagem: ''
+      });
+    }
   };
 
   return (
@@ -97,6 +93,7 @@ ${formData.mensagem}`;
                         onChange={handleInputChange}
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="Seu nome completo"
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -113,6 +110,7 @@ ${formData.mensagem}`;
                         onChange={handleInputChange}
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="Nome da sua empresa"
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -129,6 +127,7 @@ ${formData.mensagem}`;
                         onChange={handleInputChange}
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="seu@email.com"
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -145,6 +144,7 @@ ${formData.mensagem}`;
                         onChange={handleInputChange}
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="(11) 99999-9999"
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -160,15 +160,26 @@ ${formData.mensagem}`;
                         onChange={handleInputChange}
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green min-h-[120px]"
                         placeholder="Como podemos ajudar sua empresa?"
+                        disabled={isSubmitting}
                       />
                     </div>
 
                     <Button 
                       type="submit"
+                      disabled={isSubmitting}
                       className="w-full bg-grass-green hover:bg-neon-green text-white font-gotham font-semibold py-3 text-lg"
                     >
-                      <Mail className="w-5 h-5 mr-2" />
-                      Enviar mensagem
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-5 h-5 mr-2" />
+                          Enviar mensagem
+                        </>
+                      )}
                     </Button>
                   </form>
                 </CardContent>
@@ -187,7 +198,7 @@ ${formData.mensagem}`;
                         <Mail className="w-6 h-6 text-grass-green mr-4" />
                         <div>
                           <p className="font-medium text-dark-navy">E-mail</p>
-                          <p className="text-gray-600">contato@nogaria.com.br</p>
+                          <p className="text-gray-600">vendas@nogaria.com.br</p>
                         </div>
                       </div>
 
@@ -195,7 +206,7 @@ ${formData.mensagem}`;
                         <Phone className="w-6 h-6 text-grass-green mr-4" />
                         <div>
                           <p className="font-medium text-dark-navy">Telefone</p>
-                          <p className="text-gray-600">(91) 99999-9999</p>
+                          <p className="text-gray-600">(91) 99371-7808</p>
                         </div>
                       </div>
 

@@ -1,10 +1,12 @@
+
 import { useState } from 'react';
-import { Menu, X, Search, User, ShoppingCart, Phone } from 'lucide-react';
+import { Menu, X, User, ShoppingCart, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
+import SearchBar from './SearchBar';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,13 +30,11 @@ const Header = () => {
 
   const handleNavClick = (href: string) => {
     if (href.startsWith('#')) {
-      // Handle anchor links
       const element = document.querySelector(href);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     } else {
-      // Handle navigation
       navigate(href);
     }
     setIsMenuOpen(false);
@@ -85,18 +85,7 @@ const Header = () => {
           </div>
 
           {/* Search bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Buscar produtos, categorias..."
-                className="w-full px-4 py-3 border border-white/20 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-neon-green bg-white/10 backdrop-blur-sm text-white placeholder-white/70"
-              />
-              <Button className="absolute right-0 top-0 h-full px-6 bg-grass-green hover:bg-neon-green text-dark-navy rounded-l-none">
-                <Search className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
+          <SearchBar className="hidden md:flex flex-1 max-w-2xl mx-8" />
 
           {/* Action buttons */}
           <div className="flex items-center gap-4">
@@ -133,14 +122,7 @@ const Header = () => {
 
         {/* Search bar - Mobile */}
         <div className="md:hidden mt-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Buscar produtos..."
-              className="w-full px-4 py-3 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-green bg-white/10 backdrop-blur-sm text-white placeholder-white/70"
-            />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/70" />
-          </div>
+          <SearchBar placeholder="Buscar produtos..." />
         </div>
 
         {/* Desktop Navigation */}
