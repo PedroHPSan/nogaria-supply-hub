@@ -42,8 +42,8 @@ const SearchBar = ({ className = "", placeholder = "Buscar produtos, categorias.
   };
 
   return (
-    <div ref={searchRef} className={`relative ${className}`}>
-      <div className="relative">
+    <div ref={searchRef} className={`relative w-full ${className}`}>
+      <div className="flex w-full">
         <input
           type="text"
           placeholder={placeholder}
@@ -54,11 +54,11 @@ const SearchBar = ({ className = "", placeholder = "Buscar produtos, categorias.
           }}
           onFocus={() => setIsOpen(true)}
           onKeyPress={handleKeyPress}
-          className="w-full px-4 py-3 border border-white/20 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-neon-green bg-white/10 backdrop-blur-sm text-white placeholder-white/70"
+          className="flex-1 px-4 py-3 border border-white/20 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-neon-green bg-white/10 backdrop-blur-sm text-white placeholder-white/70"
         />
         <Button 
           onClick={handleSearch}
-          className="absolute right-0 top-0 h-full px-6 bg-grass-green hover:bg-neon-green text-dark-navy rounded-l-none"
+          className="px-6 bg-grass-green hover:bg-neon-green text-dark-navy rounded-l-none rounded-r-lg flex-shrink-0"
         >
           <Search className="w-5 h-5" />
         </Button>

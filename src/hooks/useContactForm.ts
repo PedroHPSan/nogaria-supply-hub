@@ -19,9 +19,18 @@ export function useContactForm() {
     setIsSubmitting(true);
     
     try {
+      // Map form data to database column names
+      const dbData = {
+        nome_completo: formData.nomeCompleto,
+        empresa: formData.empresa,
+        email: formData.email,
+        telefone: formData.telefone,
+        mensagem: formData.mensagem,
+      };
+
       const { error } = await supabase
         .from('contact_submissions')
-        .insert([formData]);
+        .insert([dbData]);
 
       if (error) throw error;
 
