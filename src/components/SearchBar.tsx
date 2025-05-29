@@ -58,7 +58,7 @@ const SearchBar = ({ className = "", placeholder = "Buscar produtos, categorias.
         />
         <Button 
           onClick={handleSearch}
-          className="px-6 bg-grass-green hover:bg-neon-green text-dark-navy rounded-l-none rounded-r-lg flex-shrink-0"
+          className="h-[52px] px-6 bg-grass-green hover:bg-neon-green text-dark-navy rounded-l-none rounded-r-lg flex-shrink-0"
         >
           <Search className="w-5 h-5" />
         </Button>
