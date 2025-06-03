@@ -12,9 +12,14 @@ import Calculator from "./pages/Calculator";
 import Checkout from "./pages/Checkout";
 import CheckoutConfirmation from "./pages/CheckoutConfirmation";
 import CategoryIT from "./pages/CategoryIT";
+import CategoryCleaning from "./pages/CategoryCleaning";
+import CategoryOffice from "./pages/CategoryOffice";
 import Sobre from "./pages/Sobre";
 import Contato from "./pages/Contato";
 import TrabalheConosco from "./pages/TrabalheConosco";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
+import LGPDInfo from "./pages/LGPDInfo";
 import AuthPage from "./components/auth/AuthPage";
 import NotFound from "./pages/NotFound";
 
@@ -33,12 +38,17 @@ const App = () => (
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/assinaturas" element={<Assinaturas />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route path="/catalog/it" element={<CategoryIT />} />
+            <Route path="/catalog/limpeza" element={<CategoryCleaning />} />
+            <Route path="/catalog/escritorio" element={<CategoryOffice />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />
-            <Route path="/catalog/it" element={<CategoryIT />} />
             <Route path="/sobre" element={<Sobre />} />
             <Route path="/contato" element={<Contato />} />
             <Route path="/trabalhe-conosco" element={<TrabalheConosco />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-use" element={<TermsOfUse />} />
+            <Route path="/lgpd" element={<LGPDInfo />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

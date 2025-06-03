@@ -1,33 +1,46 @@
 
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   const productCategories = [
-    'Material de Limpeza',
-    'Produtos de Higiene',
-    'EPI - Equipamentos',
-    'Descartáveis',
-    'Plásticos',
-    'Papelaria',
-    'Material de Escritório',
-    'Suprimentos de TI'
+    { name: 'Material de Limpeza', path: '/catalog/limpeza' },
+    { name: 'Produtos de Higiene', path: '/catalog' },
+    { name: 'EPI - Equipamentos', path: '/catalog' },
+    { name: 'Descartáveis', path: '/catalog' },
+    { name: 'Plásticos', path: '/catalog' },
+    { name: 'Papelaria', path: '/catalog/escritorio' },
+    { name: 'Material de Escritório', path: '/catalog/escritorio' },
+    { name: 'Suprimentos de TI', path: '/catalog/it' }
   ];
 
   const companyLinks = [
-    'Sobre a Nogária',
-    'Nossa História',
-    'Trabalhe Conosco',
-    'Política de Qualidade',
-    'Certificações'
+    { name: 'Sobre a Nogária', path: '/sobre' },
+    { name: 'Nossa História', path: '/sobre' },
+    { name: 'Trabalhe Conosco', path: '/trabalhe-conosco' },
+    { name: 'Política de Qualidade', path: '/sobre' },
+    { name: 'Certificações', path: '/sobre' }
   ];
 
   const serviceLinks = [
-    'Como Comprar',
-    'Formas de Pagamento',
-    'Entrega e Frete',
-    'Trocas e Devoluções',
-    'FAQ'
+    { name: 'Como Comprar', path: '/catalog' },
+    { name: 'Formas de Pagamento', path: '/contato' },
+    { name: 'Entrega e Frete', path: '/contato' },
+    { name: 'Trocas e Devoluções', path: '/contato' },
+    { name: 'FAQ', path: '/contato' }
   ];
+
+  const handleLinkClick = (path: string) => {
+    navigate(path);
+  };
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Here you would integrate with an email service
+    alert('Obrigado por se inscrever! Em breve você receberá nossas ofertas especiais.');
+  };
 
   return (
     <footer className="bg-dark-navy text-white">
@@ -36,7 +49,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company info */}
           <div className="lg:col-span-2">
-            <div className="flex items-center mb-6">
+            <div className="flex items-center mb-6 cursor-pointer" onClick={() => handleLinkClick('/')}>
               <img 
                 src="/lovable-uploads/f6b72d18-2cb2-4bb0-8bb3-f79d31eb3f47.png" 
                 alt="Nogária Logo" 
@@ -61,11 +74,21 @@ const Footer = () => {
               </div>
               <div className="flex items-center">
                 <Phone className="w-5 h-5 text-sky-blue mr-3" />
-                <span className="text-gray-300">(91) 99999-9999</span>
+                <a 
+                  href="tel:+5591993717808" 
+                  className="text-gray-300 hover:text-neon-green transition-colors"
+                >
+                  (91) 99371-7808
+                </a>
               </div>
               <div className="flex items-center">
                 <Mail className="w-5 h-5 text-sky-blue mr-3" />
-                <span className="text-gray-300">vendas@nogaria.com.br</span>
+                <a 
+                  href="mailto:vendas@nogaria.com.br" 
+                  className="text-gray-300 hover:text-neon-green transition-colors"
+                >
+                  vendas@nogaria.com.br
+                </a>
               </div>
             </div>
           </div>
@@ -75,13 +98,13 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-6 text-sky-blue">Produtos</h4>
             <ul className="space-y-3">
               {productCategories.map((category) => (
-                <li key={category}>
-                  <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-neon-green transition-colors duration-200"
+                <li key={category.name}>
+                  <button 
+                    onClick={() => handleLinkClick(category.path)}
+                    className="text-gray-300 hover:text-neon-green transition-colors duration-200 text-left"
                   >
-                    {category}
-                  </a>
+                    {category.name}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -92,13 +115,13 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-6 text-sky-blue">Empresa</h4>
             <ul className="space-y-3">
               {companyLinks.map((link) => (
-                <li key={link}>
-                  <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-neon-green transition-colors duration-200"
+                <li key={link.name}>
+                  <button 
+                    onClick={() => handleLinkClick(link.path)}
+                    className="text-gray-300 hover:text-neon-green transition-colors duration-200 text-left"
                   >
-                    {link}
-                  </a>
+                    {link.name}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -109,13 +132,13 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-6 text-sky-blue">Atendimento</h4>
             <ul className="space-y-3">
               {serviceLinks.map((link) => (
-                <li key={link}>
-                  <a 
-                    href="#" 
-                    className="text-gray-300 hover:text-neon-green transition-colors duration-200"
+                <li key={link.name}>
+                  <button 
+                    onClick={() => handleLinkClick(link.path)}
+                    className="text-gray-300 hover:text-neon-green transition-colors duration-200 text-left"
                   >
-                    {link}
-                  </a>
+                    {link.name}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -124,13 +147,28 @@ const Footer = () => {
             <div className="mt-8">
               <h5 className="font-semibold mb-4 text-sky-blue">Siga-nos</h5>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-300 hover:text-neon-green transition-colors">
+                <a 
+                  href="https://facebook.com/nogaria" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-neon-green transition-colors"
+                >
                   <Facebook className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-gray-300 hover:text-neon-green transition-colors">
+                <a 
+                  href="https://instagram.com/nogaria" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-neon-green transition-colors"
+                >
                   <Instagram className="w-6 h-6" />
                 </a>
-                <a href="#" className="text-gray-300 hover:text-neon-green transition-colors">
+                <a 
+                  href="https://linkedin.com/company/nogaria" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-neon-green transition-colors"
+                >
                   <Linkedin className="w-6 h-6" />
                 </a>
               </div>
@@ -152,16 +190,20 @@ const Footer = () => {
               </p>
             </div>
             
-            <div className="flex w-full md:w-auto">
+            <form onSubmit={handleNewsletterSubmit} className="flex w-full md:w-auto">
               <input
                 type="email"
                 placeholder="Seu e-mail corporativo"
+                required
                 className="px-4 py-3 bg-deep-blue border border-azure rounded-l-lg focus:outline-none focus:ring-2 focus:ring-azure text-white placeholder-gray-400 flex-grow md:w-80"
               />
-              <button className="bg-azure hover:bg-sky-blue px-6 py-3 rounded-r-lg font-semibold transition-colors duration-200">
+              <button 
+                type="submit"
+                className="bg-azure hover:bg-sky-blue px-6 py-3 rounded-r-lg font-semibold transition-colors duration-200"
+              >
                 Inscrever
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
@@ -175,15 +217,24 @@ const Footer = () => {
             </div>
             
             <div className="flex space-x-6">
-              <a href="#" className="hover:text-neon-green transition-colors">
+              <button 
+                onClick={() => handleLinkClick('/privacy-policy')}
+                className="hover:text-neon-green transition-colors"
+              >
                 Política de Privacidade
-              </a>
-              <a href="#" className="hover:text-neon-green transition-colors">
+              </button>
+              <button 
+                onClick={() => handleLinkClick('/terms-of-use')}
+                className="hover:text-neon-green transition-colors"
+              >
                 Termos de Uso
-              </a>
-              <a href="#" className="hover:text-neon-green transition-colors">
+              </button>
+              <button 
+                onClick={() => handleLinkClick('/lgpd')}
+                className="hover:text-neon-green transition-colors"
+              >
                 LGPD
-              </a>
+              </button>
             </div>
           </div>
         </div>

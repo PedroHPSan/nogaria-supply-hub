@@ -1,51 +1,91 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, CreditCard, Smartphone, FileText, Building } from 'lucide-react';
+import { Trash2, Plus, Minus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useCart } from '@/hooks/useCart';
+import { useToast } from '@/hooks/use-toast';
 
 const Checkout = () => {
-  const [formData, setFormData] = useState({
-    companyName: '',
-    cnpj: '',
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { cart, removeFromCart, updateQuantity, clearCart, getCartTotal } = useCart();
+  
+  const [customerInfo, setCustomerInfo] = useState({
+    name: '',
     email: '',
     phone: '',
+    company: '',
+    cnpj: '',
     address: '',
-    notes: '',
-    paymentMethod: 'pix'
+    observations: ''
   });
 
-  const paymentMethods = [
-    { id: 'pix', label: 'Pix', icon: Smartphone },
-    { id: 'credit', label: 'Cartão de Crédito', icon: CreditCard },
-    { id: 'boleto', label: 'Boleto Bancário', icon: FileText },
-    { id: 'b2b', label: 'Faturamento B2B', icon: Building }
-  ];
-
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setCustomerInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const sendOrderViaWhatsApp = () => {
-    const message = `Olá! Gostaria de finalizar meu pedido com os seguintes dados:
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (cart.length === 0) {
+      toast({
+        title: "Carrinho vazio",
+        description: "Adicione produtos ao carrinho antes de finalizar o pedido.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-*Empresa:* ${formData.companyName}
-*CNPJ:* ${formData.cnpj}
-*Email:* ${formData.email}
-*Telefone:* ${formData.phone}
-*Endereço:* ${formData.address}
-*Forma de Pagamento:* ${paymentMethods.find(p => p.id === formData.paymentMethod)?.label}
-*Observações:* ${formData.notes || 'Nenhuma'}
+    // Validate required fields
+    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.company) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-Aguardo o contato para confirmação!`;
-
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/559193717808?text=${encodedMessage}`, '_blank');
+    // Create order message for WhatsApp
+    const orderDetails = cart.map(item => 
+      `• ${item.name} - Qtd: ${item.quantity} - R$ ${(item.price * item.quantity).toFixed(2)}`
+    ).join('\n');
+    
+    const message = `*NOVO PEDIDO - NOGÁRIA*\n\n` +
+      `*Cliente:* ${customerInfo.name}\n` +
+      `*Empresa:* ${customerInfo.company}\n` +
+      `*E-mail:* ${customerInfo.email}\n` +
+      `*Telefone:* ${customerInfo.phone}\n` +
+      `*CNPJ:* ${customerInfo.cnpj}\n` +
+      `*Endereço:* ${customerInfo.address}\n\n` +
+      `*PRODUTOS:*\n${orderDetails}\n\n` +
+      `*TOTAL: R$ ${getCartTotal().toFixed(2)}*\n\n` +
+      `*Observações:* ${customerInfo.observations}`;
+    
+    const whatsappUrl = `https://wa.me/5591993717808?text=${encodeURIComponent(message)}`;
+    
+    // Clear cart and redirect
+    clearCart();
+    
+    // Show success message
+    toast({
+      title: "Pedido enviado!",
+      description: "Redirecionando para WhatsApp e página de confirmação..."
+    });
+    
+    // Open WhatsApp
+    window.open(whatsappUrl, '_blank');
+    
+    // Redirect to confirmation page after a short delay
+    setTimeout(() => {
+      navigate('/checkout/confirmation');
+    }, 2000);
   };
 
   return (
@@ -60,7 +100,7 @@ Aguardo o contato para confirmação!`;
               Finalizar Pedido
             </h1>
             <p className="text-xl text-white/90">
-              Revise seu carrinho, preencha seus dados e envie seu pedido
+              Complete suas informações e envie seu pedido via WhatsApp
             </p>
           </div>
         </div>
@@ -70,127 +110,161 @@ Aguardo o contato para confirmação!`;
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl text-dark-navy">Resumo do Pedido</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Company Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-dark-navy">Dados da Empresa</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="companyName">Nome da Empresa</Label>
-                      <Input
-                        id="companyName"
-                        value={formData.companyName}
-                        onChange={(e) => handleInputChange('companyName', e.target.value)}
-                        placeholder="Razão social da empresa"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="cnpj">CNPJ</Label>
-                      <Input
-                        id="cnpj"
-                        value={formData.cnpj}
-                        onChange={(e) => handleInputChange('cnpj', e.target.value)}
-                        placeholder="00.000.000/0000-00"
-                      />
-                    </div>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Customer Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Informações do Cliente</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="name">Nome Completo *</Label>
+                    <Input
+                      id="name"
+                      value={customerInfo.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      required
+                    />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="email">Email Corporativo</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        placeholder="contato@empresa.com.br"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="phone">Telefone</Label>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        placeholder="(11) 99999-9999"
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="email">E-mail *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={customerInfo.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="phone">Telefone *</Label>
+                    <Input
+                      id="phone"
+                      value={customerInfo.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="company">Empresa *</Label>
+                    <Input
+                      id="company"
+                      value={customerInfo.company}
+                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="cnpj">CNPJ</Label>
+                    <Input
+                      id="cnpj"
+                      value={customerInfo.cnpj}
+                      onChange={(e) => handleInputChange('cnpj', e.target.value)}
+                    />
                   </div>
                   
                   <div>
                     <Label htmlFor="address">Endereço de Entrega</Label>
                     <Textarea
                       id="address"
-                      value={formData.address}
+                      value={customerInfo.address}
                       onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="Endereço completo com CEP"
-                      rows={3}
                     />
                   </div>
-                </div>
-
-                {/* Payment Method */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-dark-navy">Forma de Pagamento</h3>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {paymentMethods.map((method) => (
-                      <Card 
-                        key={method.id}
-                        className={`cursor-pointer transition-all ${
-                          formData.paymentMethod === method.id 
-                            ? 'border-grass-green bg-grass-green/10' 
-                            : 'hover:border-sky-blue'
-                        }`}
-                        onClick={() => handleInputChange('paymentMethod', method.id)}
-                      >
-                        <CardContent className="p-4 text-center">
-                          <method.icon className={`w-8 h-8 mx-auto mb-2 ${
-                            formData.paymentMethod === method.id ? 'text-grass-green' : 'text-gray-600'
-                          }`} />
-                          <p className="text-sm font-medium">{method.label}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
+                  <div>
+                    <Label htmlFor="observations">Observações</Label>
+                    <Textarea
+                      id="observations"
+                      value={customerInfo.observations}
+                      onChange={(e) => handleInputChange('observations', e.target.value)}
+                      placeholder="Informações adicionais sobre o pedido..."
+                    />
                   </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                {/* Order Notes */}
-                <div>
-                  <Label htmlFor="notes">Observações do Pedido</Label>
-                  <Textarea
-                    id="notes"
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
-                    placeholder="Informações adicionais sobre o pedido (opcional)"
-                    rows={3}
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <div className="pt-6">
-                  <Button 
-                    onClick={sendOrderViaWhatsApp}
-                    className="w-full bg-grass-green hover:bg-neon-green text-white py-4 text-lg font-semibold"
-                    disabled={!formData.companyName || !formData.cnpj || !formData.email}
-                  >
-                    <MessageCircle className="w-5 h-5 mr-2" />
-                    Enviar pedido via WhatsApp
-                  </Button>
+              {/* Order Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Resumo do Pedido</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {cart.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">
+                      Seu carrinho está vazio
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {cart.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{item.name}</h4>
+                            <p className="text-sm text-gray-500">
+                              R$ {item.price.toFixed(2)} cada
+                            </p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                            
+                            <span className="px-3 py-1 bg-gray-100 rounded">
+                              {item.quantity}
+                            </span>
+                            
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                            
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeFromCart(item.id)}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <div className="border-t pt-4">
+                        <div className="flex justify-between text-lg font-bold">
+                          <span>Total:</span>
+                          <span className="text-grass-green">
+                            R$ {getCartTotal().toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   
-                  <p className="text-center text-gray-600 mt-4 text-sm">
-                    Seu pedido será enviado via WhatsApp para confirmação e processamento
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                  <Button 
+                    type="submit" 
+                    className="w-full mt-6 bg-grass-green hover:bg-grass-green/90"
+                    disabled={cart.length === 0}
+                  >
+                    Enviar Pedido via WhatsApp
+                  </Button>
+                </CardContent>
+              </Card>
+            </form>
           </div>
         </div>
       </section>
