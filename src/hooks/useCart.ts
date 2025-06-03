@@ -132,6 +132,38 @@ export function useCart() {
     },
   });
 
+  const clearCart = () => {
+    if (user) {
+      // Clear database cart
+      supabase
+        .from('cart_items')
+        .delete()
+        .eq('user_id', user.id)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ['cart', user.id] });
+        });
+    } else {
+      // Clear local cart
+      setLocalCart([]);
+      localStorage.removeItem('cart');
+    }
+  };
+
+  const getCartTotal = () => {
+    const cart = user ? dbCart : localCart;
+    return cart.reduce((total, item) => {
+      if (user && item.product) {
+        // Database cart with populated product
+        return total + (item.product.price * item.quantity);
+      } else if (!user) {
+        // Local cart - we'll need to handle this differently since we don't have product info
+        // For now, return 0 for local cart total calculation
+        return total;
+      }
+      return total;
+    }, 0);
+  };
+
   const cart = user ? dbCart : localCart;
   const cartCount = cart.length;
 
@@ -142,5 +174,7 @@ export function useCart() {
     addToCart: addToCartMutation.mutate,
     removeFromCart: removeFromCartMutation.mutate,
     updateQuantity: updateQuantityMutation.mutate,
+    clearCart,
+    getCartTotal,
   };
 }

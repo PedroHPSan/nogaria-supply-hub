@@ -54,7 +54,7 @@ const Checkout = () => {
 
     // Create order message for WhatsApp
     const orderDetails = cart.map(item => 
-      `• ${item.name} - Qtd: ${item.quantity} - R$ ${(item.price * item.quantity).toFixed(2)}`
+      `• ${item.name || 'Produto'} - Qtd: ${item.quantity} - R$ ${((item.price || 0) * item.quantity).toFixed(2)}`
     ).join('\n');
     
     const message = `*NOVO PEDIDO - NOGÁRIA*\n\n` +
@@ -203,9 +203,9 @@ const Checkout = () => {
                       {cart.map((item) => (
                         <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
                           <div className="flex-1">
-                            <h4 className="font-medium">{item.name}</h4>
+                            <h4 className="font-medium">{item.name || 'Produto'}</h4>
                             <p className="text-sm text-gray-500">
-                              R$ {item.price.toFixed(2)} cada
+                              R$ {(item.price || 0).toFixed(2)} cada
                             </p>
                           </div>
                           
@@ -214,7 +214,7 @@ const Checkout = () => {
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                              onClick={() => updateQuantity({ productId: item.id, quantity: Math.max(1, item.quantity - 1) })}
                             >
                               <Minus className="w-3 h-3" />
                             </Button>
@@ -227,7 +227,7 @@ const Checkout = () => {
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity({ productId: item.id, quantity: item.quantity + 1 })}
                             >
                               <Plus className="w-3 h-3" />
                             </Button>
