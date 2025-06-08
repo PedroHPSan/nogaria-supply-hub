@@ -4,19 +4,16 @@ import { CalculatorInput, AmbienteConfig } from './types';
 export interface CalculationResult {
   totalAreaM2: number;
   numeroFuncionarios: number;
-  horasLimpezaDiaria: number;
-  horasLimpezaSemanal: number;
-  horasLimpezaMensal: number;
-  custoProdutosMensal: number;
-  custoMaoObraMensal: number;
-  custoTotalMensal: number;
-  equipamentosNecessarios: string[];
-  produtosRecomendados: ProductRecommendation[];
-  conformidadeNR24: {
-    percentualConformidade: number;
-    itensNaoConformes: string[];
-    recomendacoes: string[];
+  productsByCategory: {
+    higiene: ProductRecommendation[];
+    limpezaSuperficies: ProductRecommendation[];
+    coletaResiduos: ProductRecommendation[];
+    acessorios: ProductRecommendation[];
   };
+  custoMensalTotal: number;
+  custoComDesconto: number;
+  percentualDesconto: number;
+  estimativaMensal: string;
   relatorioDetalhado: {
     ambientes: AmbienteResult[];
     resumoGeral: string;
@@ -24,70 +21,71 @@ export interface CalculationResult {
 }
 
 export interface ProductRecommendation {
+  nome: string;
   categoria: string;
-  produto: string;
   quantidade: number;
   unidade: string;
   custoUnitario: number;
   custoTotal: number;
+  formula: string;
 }
 
 export interface AmbienteResult {
   id: string;
   tipo: string;
   area: number;
-  horasDiarias: number;
-  produtosEspecificos: ProductRecommendation[];
+  usuarios: number;
+  produtos: ProductRecommendation[];
 }
 
 export class CalculationEngine {
-  private static readonly HORAS_BASE_POR_M2: { [key: string]: number } = {
-    'escritorio': 0.05,
-    'banheiro': 0.8,
-    'cozinha': 0.6,
-    'almoxarifado': 0.03,
-    'auditorio': 0.04,
-    'laboratorio': 0.15,
-    'outro': 0.05
+  // Multipliers based on dirtiness level
+  private static readonly DIRTINESS_MULTIPLIERS: { [key: string]: number } = {
+    'baixo': 0.8,
+    'medio': 1.0,
+    'alto': 1.3
   };
 
-  private static readonly CUSTO_PRODUTOS_POR_M2: { [key: string]: number } = {
-    'escritorio': 2.50,
-    'banheiro': 15.00,
-    'cozinha': 12.00,
-    'almoxarifado': 1.80,
-    'auditorio': 2.00,
-    'laboratorio': 8.50,
-    'outro': 3.00
+  // Base pricing (R$)
+  private static readonly PRODUCT_PRICES: { [key: string]: number } = {
+    'desinfetante': 15.50,
+    'papel_toalha': 45.00,
+    'papel_higienico': 28.00,
+    'sabonete_liquido': 22.00,
+    'saco_lixo': 35.00,
+    'alcool_70': 18.00,
+    'pano_microfibra': 12.00,
+    'detergente': 8.50,
+    'limpa_vidros': 14.00
   };
 
   static calculate(data: CalculatorInput): CalculationResult {
     const totalAreaM2 = this.calculateTotalArea(data.ambientes);
-    const horasLimpezaDiaria = this.calculateHorasDiarias(data);
-    const horasLimpezaSemanal = horasLimpezaDiaria * 5;
-    const horasLimpezaMensal = horasLimpezaSemanal * 4.33;
+    const totalUsuarios = data.numeroFuncionarios;
+    const dirtinessMultiplier = this.DIRTINESS_MULTIPLIERS[data.nivelSujidadeGeral] || 1.0;
+    const frequencyMultiplier = this.getFrequencyMultiplier(data.frequenciaLimpezaManutencaoDiaria);
 
-    const custoProdutosMensal = this.calculateCustoProdutos(data);
-    const custoMaoObraMensal = this.calculateCustoMaoObra(horasLimpezaMensal);
-    const custoTotalMensal = custoProdutosMensal + custoMaoObraMensal;
+    const productsByCategory = this.calculateProductsByCategory(
+      data.ambientes,
+      totalUsuarios,
+      dirtinessMultiplier,
+      frequencyMultiplier
+    );
 
-    const equipamentosNecessarios = this.getEquipamentosNecessarios(data.ambientes);
-    const produtosRecomendados = this.getProdutosRecomendados(data);
-    const conformidadeNR24 = this.calculateConformidadeNR24(data);
-    const relatorioDetalhado = this.generateRelatorioDetalhado(data);
+    const custoMensalTotal = this.calculateTotalCost(productsByCategory);
+    const percentualDesconto = 15; // 15% subscription discount
+    const custoComDesconto = custoMensalTotal * (1 - percentualDesconto / 100);
+
+    const relatorioDetalhado = this.generateDetailedReport(data, productsByCategory);
 
     return {
       totalAreaM2,
-      numeroFuncionarios: data.numeroFuncionarios,
-      horasLimpezaDiaria,
-      horasLimpezaSemanal,
-      horasLimpezaMensal,
-      custoProdutosMensal,
-      custoMaoObraMensal,
-      custoTotalMensal,
-      equipamentosNecessarios,
-      produtosRecomendados,
-      conformidadeNR24,
+      numeroFuncionarios: totalUsuarios,
+      productsByCategory,
+      custoMensalTotal,
+      custoComDesconto,
+      percentualDesconto,
+      estimativaMensal: this.generateMonthlyEstimate(data),
       relatorioDetalhado
     };
   }
@@ -96,173 +94,168 @@ export class CalculationEngine {
     return ambientes.reduce((total, ambiente) => total + ambiente.areaM2, 0);
   }
 
-  private static calculateHorasDiarias(data: CalculatorInput): number {
-    let horasBase = 0;
-    
-    data.ambientes.forEach(ambiente => {
-      const horasPorM2 = this.HORAS_BASE_POR_M2[ambiente.tipo] || 0.05;
-      horasBase += ambiente.areaM2 * horasPorM2;
-    });
-
-    // Ajustes baseados na frequência
-    const multiplicadorFrequencia = this.getMultiplicadorFrequencia(data.frequenciaLimpezaManutencaoDiaria);
-    horasBase *= multiplicadorFrequencia;
-
-    // Ajustes baseados no nível de sujidade
-    const multiplicadorSujidade = this.getMultiplicadorSujidade(data.nivelSujidadeGeral);
-    horasBase *= multiplicadorSujidade;
-
-    return Math.round(horasBase * 100) / 100;
-  }
-
-  private static getMultiplicadorFrequencia(frequencia: string): number {
-    const multiplicadores: { [key: string]: number } = {
-      '1x': 1.0,
-      '2x': 0.8,
-      '3x': 0.7,
-      'mais-3x': 0.6
+  private static getFrequencyMultiplier(frequency: string): number {
+    const multipliers: { [key: string]: number } = {
+      'diaria': 1.0,
+      'semanal': 0.3,
+      'quinzenal': 0.15,
+      'mensal': 0.05
     };
-    return multiplicadores[frequencia] || 1.0;
+    return multipliers[frequency] || 1.0;
   }
 
-  private static getMultiplicadorSujidade(nivel: string): number {
-    const multiplicadores: { [key: string]: number } = {
-      'baixo': 0.8,
-      'medio': 1.0,
-      'alto': 1.3,
-      'muito-alto': 1.6
-    };
-    return multiplicadores[nivel] || 1.0;
-  }
+  private static calculateProductsByCategory(
+    ambientes: AmbienteConfig[],
+    usuarios: number,
+    dirtinessMultiplier: number,
+    frequencyMultiplier: number
+  ): CalculationResult['productsByCategory'] {
+    const totalArea = this.calculateTotalArea(ambientes);
+    const banheiros = ambientes.filter(a => a.tipo === 'banheiro').length;
 
-  private static calculateCustoProdutos(data: CalculatorInput): number {
-    let custoTotal = 0;
-    
-    data.ambientes.forEach(ambiente => {
-      const custoPorM2 = this.CUSTO_PRODUTOS_POR_M2[ambiente.tipo] || 3.00;
-      custoTotal += ambiente.areaM2 * custoPorM2;
-    });
-
-    return Math.round(custoTotal * 100) / 100;
-  }
-
-  private static calculateCustoMaoObra(horasMensais: number): number {
-    const custoHora = 25.00; // R$ 25,00 por hora
-    return Math.round(horasMensais * custoHora * 100) / 100;
-  }
-
-  private static getEquipamentosNecessarios(ambientes: AmbienteConfig[]): string[] {
-    const equipamentos = new Set<string>();
-    
-    ambientes.forEach(ambiente => {
-      switch (ambiente.tipo) {
-        case 'banheiro':
-          equipamentos.add('Carrinho de limpeza para banheiros');
-          equipamentos.add('MOP com sistema duplo balde');
-          equipamentos.add('Panos de microfibra específicos');
-          break;
-        case 'cozinha':
-          equipamentos.add('Equipamentos para cozinha industrial');
-          equipamentos.add('Panos descartáveis para superfícies alimentares');
-          break;
-        case 'escritorio':
-          equipamentos.add('Aspirador de pó profissional');
-          equipamentos.add('Panos de microfibra para móveis');
-          break;
-        default:
-          equipamentos.add('Kit básico de limpeza');
+    // HIGIENE PRODUCTS
+    const higiene: ProductRecommendation[] = [
+      {
+        nome: 'Papel Toalha (Fardos)',
+        categoria: 'higiene',
+        quantidade: Math.ceil(usuarios * 5 * 1.5 * 22 / 2000),
+        unidade: 'fardos',
+        custoUnitario: this.PRODUCT_PRICES.papel_toalha,
+        custoTotal: 0,
+        formula: 'usuários × 5 lavagens/dia × 1.5 folhas × 22 dias ÷ 2000'
+      },
+      {
+        nome: 'Papel Higiênico (Fardos)',
+        categoria: 'higiene', 
+        quantidade: Math.ceil(usuarios * 3 / 4),
+        unidade: 'fardos',
+        custoUnitario: this.PRODUCT_PRICES.papel_higienico,
+        custoTotal: 0,
+        formula: 'usuários × 3 rolos/semana ÷ 4 semanas'
+      },
+      {
+        nome: 'Sabonete Líquido (Refil 800ml)',
+        categoria: 'higiene',
+        quantidade: Math.ceil(usuarios * 5 * 1.5 * 22 / 800),
+        unidade: 'refis',
+        custoUnitario: this.PRODUCT_PRICES.sabonete_liquido,
+        custoTotal: 0,
+        formula: 'usuários × 5 lavagens/dia × 1.5ml × 22 dias ÷ 800ml'
       }
-    });
+    ];
 
-    return Array.from(equipamentos);
-  }
-
-  private static getProdutosRecomendados(data: CalculatorInput): ProductRecommendation[] {
-    const produtos: ProductRecommendation[] = [];
-    
-    data.ambientes.forEach(ambiente => {
-      switch (ambiente.tipo) {
-        case 'banheiro':
-          produtos.push({
-            categoria: 'Desinfetantes',
-            produto: 'Desinfetante sanitário ANVISA',
-            quantidade: Math.ceil(ambiente.areaM2 / 50),
-            unidade: 'litros',
-            custoUnitario: 45.00,
-            custoTotal: Math.ceil(ambiente.areaM2 / 50) * 45.00
-          });
-          break;
-        case 'cozinha':
-          produtos.push({
-            categoria: 'Sanitizantes',
-            produto: 'Sanitizante para superfícies alimentares',
-            quantidade: Math.ceil(ambiente.areaM2 / 30),
-            unidade: 'litros',
-            custoUnitario: 52.00,
-            custoTotal: Math.ceil(ambiente.areaM2 / 30) * 52.00
-          });
-          break;
-        default:
-          produtos.push({
-            categoria: 'Multiuso',
-            produto: 'Limpador multiuso neutro',
-            quantidade: Math.ceil(ambiente.areaM2 / 100),
-            unidade: 'litros',
-            custoUnitario: 28.00,
-            custoTotal: Math.ceil(ambiente.areaM2 / 100) * 28.00
-          });
+    // SURFACE CLEANING
+    const limpezaSuperficies: ProductRecommendation[] = [
+      {
+        nome: 'Desinfetante (Litros)',
+        categoria: 'limpeza_superficies',
+        quantidade: Math.ceil(totalArea * frequencyMultiplier * 0.05 * dirtinessMultiplier),
+        unidade: 'litros',
+        custoUnitario: this.PRODUCT_PRICES.desinfetante,
+        custoTotal: 0,
+        formula: 'área × frequência × 0.05 × multiplicador_sujidade'
+      },
+      {
+        nome: 'Álcool 70% (Litros)',
+        categoria: 'limpeza_superficies',
+        quantidade: Math.max(2, Math.ceil(totalArea / 100)),
+        unidade: 'litros',
+        custoUnitario: this.PRODUCT_PRICES.alcool_70,
+        custoTotal: 0,
+        formula: 'área ÷ 100 (mínimo 2L)'
+      },
+      {
+        nome: 'Detergente Neutro (Litros)',
+        categoria: 'limpeza_superficies',
+        quantidade: Math.ceil(totalArea / 50 * dirtinessMultiplier),
+        unidade: 'litros',
+        custoUnitario: this.PRODUCT_PRICES.detergente,
+        custoTotal: 0,
+        formula: 'área ÷ 50 × multiplicador_sujidade'
+      },
+      {
+        nome: 'Limpa Vidros (Litros)',
+        categoria: 'limpeza_superficies',
+        quantidade: Math.max(1, Math.ceil(totalArea / 200)),
+        unidade: 'litros',
+        custoUnitario: this.PRODUCT_PRICES.limpa_vidros,
+        custoTotal: 0,
+        formula: 'área ÷ 200 (mínimo 1L)'
       }
-    });
+    ];
 
-    return produtos;
-  }
-
-  private static calculateConformidadeNR24(data: CalculatorInput): any {
-    const itensVerificados = [];
-    const itensNaoConformes = [];
-    const recomendacoes = [];
-
-    data.ambientes.forEach(ambiente => {
-      if (ambiente.tipo === 'banheiro' || ambiente.tipo === 'cozinha') {
-        itensVerificados.push('pisosConservados', 'paredesLavaveisImpermeaveis', 'lixeirasComTampaBanheiroCozinha');
-        
-        if (!ambiente.nr24_pisosConservados) {
-          itensNaoConformes.push('Pisos não estão adequadamente conservados');
-          recomendacoes.push('Realizar manutenção preventiva dos pisos');
-        }
-        
-        if (!ambiente.nr24_paredesLavaveisImpermeaveis) {
-          itensNaoConformes.push('Paredes não são laváveis e impermeáveis');
-          recomendacoes.push('Adequar paredes conforme NR-24');
-        }
+    // WASTE COLLECTION
+    const coletaResiduos: ProductRecommendation[] = [
+      {
+        nome: 'Sacos de Lixo (Pacotes)',
+        categoria: 'coleta_residuos',
+        quantidade: Math.ceil(banheiros * 2 * 22 / 100),
+        unidade: 'pacotes',
+        custoUnitario: this.PRODUCT_PRICES.saco_lixo,
+        custoTotal: 0,
+        formula: 'banheiros × 2 trocas/dia × 22 dias ÷ 100 sacos/pacote'
       }
-    });
+    ];
 
-    const percentualConformidade = itensVerificados.length > 0 
-      ? Math.round(((itensVerificados.length - itensNaoConformes.length) / itensVerificados.length) * 100)
-      : 100;
+    // ACCESSORIES
+    const acessorios: ProductRecommendation[] = [
+      {
+        nome: 'Panos de Microfibra',
+        categoria: 'acessorios',
+        quantidade: Math.max(5, Math.ceil(totalArea / 50)),
+        unidade: 'unidades',
+        custoUnitario: this.PRODUCT_PRICES.pano_microfibra,
+        custoTotal: 0,
+        formula: 'área ÷ 50 (mínimo 5 unidades)'
+      }
+    ];
+
+    // Calculate total costs
+    [...higiene, ...limpezaSuperficies, ...coletaResiduos, ...acessorios].forEach(product => {
+      product.custoTotal = product.quantidade * product.custoUnitario;
+    });
 
     return {
-      percentualConformidade,
-      itensNaoConformes,
-      recomendacoes
+      higiene,
+      limpezaSuperficies,
+      coletaResiduos,
+      acessorios
     };
   }
 
-  private static generateRelatorioDetalhado(data: CalculatorInput): any {
+  private static calculateTotalCost(productsByCategory: CalculationResult['productsByCategory']): number {
+    const allProducts = [
+      ...productsByCategory.higiene,
+      ...productsByCategory.limpezaSuperficies,
+      ...productsByCategory.coletaResiduos,
+      ...productsByCategory.acessorios
+    ];
+    
+    return allProducts.reduce((total, product) => total + product.custoTotal, 0);
+  }
+
+  private static generateMonthlyEstimate(data: CalculatorInput): string {
+    const totalArea = this.calculateTotalArea(data.ambientes);
+    return `Estimativa baseada em ${data.numeroFuncionarios} funcionários, ${totalArea}m² de área total, ` +
+           `com limpeza ${data.frequenciaLimpezaManutencaoDiaria} e nível de sujidade ${data.nivelSujidadeGeral}.`;
+  }
+
+  private static generateDetailedReport(
+    data: CalculatorInput, 
+    productsByCategory: CalculationResult['productsByCategory']
+  ): CalculationResult['relatorioDetalhado'] {
     const ambientes = data.ambientes.map(ambiente => ({
       id: ambiente.id,
       tipo: ambiente.tipo,
       area: ambiente.areaM2,
-      horasDiarias: ambiente.areaM2 * (this.HORAS_BASE_POR_M2[ambiente.tipo] || 0.05),
-      produtosEspecificos: this.getProdutosRecomendados({ ...data, ambientes: [ambiente] })
+      usuarios: Math.ceil(data.numeroFuncionarios * (ambiente.areaM2 / this.calculateTotalArea(data.ambientes))),
+      produtos: [...productsByCategory.higiene, ...productsByCategory.limpezaSuperficies]
+        .filter(p => p.quantidade > 0)
+        .slice(0, 3)
     }));
 
-    const resumoGeral = `
-      Relatório baseado em ${data.numeroFuncionarios} funcionários e ${data.ambientes.length} ambientes.
-      Frequência de limpeza: ${data.frequenciaLimpezaManutencaoDiaria}.
-      Nível de sujidade: ${data.nivelSujidadeGeral}.
-    `;
+    const resumoGeral = `Análise completa para empresa com ${data.numeroFuncionarios} funcionários em ${data.ambientes.length} ambientes. ` +
+                       `Frequência de limpeza ${data.frequenciaLimpezaManutencaoDiaria} com nível de sujidade ${data.nivelSujidadeGeral}.`;
 
     return { ambientes, resumoGeral };
   }

@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CalculatorWelcome from '@/components/calculator/CalculatorWelcome';
 import CalculatorQuestionnaire from '@/components/calculator/CalculatorQuestionnaire';
+import LeadCaptureForm from '@/components/calculator/LeadCaptureForm';
 import CalculatorResults from '@/components/calculator/CalculatorResults';
 import ProgressIndicator from '@/components/calculator/ProgressIndicator';
 import { CalculatorInput, RegistrationData, Phase } from '@/components/calculator/types';
@@ -15,6 +15,7 @@ const Calculator = () => {
   const [currentPhase, setCurrentPhase] = useState<Phase>('welcome');
   const [currentStep, setCurrentStep] = useState(1);
   const { toast } = useToast();
+  
   const [calculatorData, setCalculatorData] = useState<CalculatorInput>({
     numeroFuncionarios: 0,
     frequenciaLimpezaManutencaoDiaria: '',
@@ -46,6 +47,10 @@ const Calculator = () => {
     setCalculatorData(prev => ({ ...prev, ...data }));
   };
 
+  const updateRegistrationData = (data: Partial<RegistrationData>) => {
+    setRegistrationData(prev => ({ ...prev, ...data }));
+  };
+
   const handleStartCalculation = () => {
     setCurrentPhase('questionnaire');
   };
@@ -54,14 +59,14 @@ const Calculator = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Calculate results and skip to results phase
+      // Calculate results and move to lead capture
       const result = CalculationEngine.calculate(calculatorData);
       setCalculationResult(result);
-      setCurrentPhase('results');
+      setCurrentPhase('lead-capture');
       
       toast({
         title: "Cálculo realizado com sucesso!",
-        description: "Confira os resultados detalhados abaixo.",
+        description: "Agora precisamos de suas informações para gerar o orçamento personalizado.",
       });
     }
   };
@@ -74,17 +79,22 @@ const Calculator = () => {
     }
   };
 
-  const handleRegistration = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!registrationData.lgpdConsent) {
-      toast({
-        title: "Consentimento necessário",
-        description: "Por favor, aceite os termos para continuar.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleLeadCaptureSubmit = () => {
+    // Here you would normally save the lead data to database/CRM
+    console.log('Lead data:', registrationData);
+    console.log('Calculation result:', calculationResult);
+    
     setCurrentPhase('results');
+    
+    toast({
+      title: "Orçamento gerado com sucesso!",
+      description: "Confira sua análise personalizada de necessidades.",
+    });
+  };
+
+  const handleLeadCaptureBack = () => {
+    setCurrentPhase('questionnaire');
+    setCurrentStep(3); // Return to last step of questionnaire
   };
 
   const handleDownloadReport = () => {
@@ -94,7 +104,7 @@ const Calculator = () => {
     });
     
     // Here you would implement the actual PDF generation and download
-    console.log('Downloading report with data:', calculationResult);
+    console.log('Downloading report with data:', calculationResult, registrationData);
   };
 
   const handleStartOver = () => {
@@ -113,6 +123,16 @@ const Calculator = () => {
       produtosAnvisaUtilizados: false,
       fispqDisponivel: false,
       episFornecidosUtilizados: false,
+    });
+    setRegistrationData({
+      fullName: '',
+      companyName: '',
+      businessEmail: '',
+      phone: '',
+      cnpj: '',
+      companySegment: '',
+      jobTitle: '',
+      lgpdConsent: false,
     });
   };
 
@@ -139,27 +159,14 @@ const Calculator = () => {
         />
       )}
 
-      {/* Lead Capture Phase - Currently skipped */}
+      {/* Lead Capture Phase */}
       {currentPhase === 'lead-capture' && (
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-dark-navy mb-8">
-                Captura de Leads - Em Desenvolvimento
-              </h2>
-              <p className="text-lg text-gray-600 mb-8">
-                Esta seção será implementada na Fase 3 do projeto.
-              </p>
-              <Button 
-                onClick={() => setCurrentPhase('questionnaire')}
-                variant="outline"
-                className="border-sky-blue text-sky-blue hover:bg-sky-blue hover:text-white"
-              >
-                Voltar ao Questionário
-              </Button>
-            </div>
-          </div>
-        </section>
+        <LeadCaptureForm
+          data={registrationData}
+          updateData={updateRegistrationData}
+          onSubmit={handleLeadCaptureSubmit}
+          onBack={handleLeadCaptureBack}
+        />
       )}
 
       {/* Results Phase */}

@@ -1,8 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Download, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Download, FileText, CheckCircle, ArrowRight, Phone } from 'lucide-react';
 import { CalculationResult } from './CalculationEngine';
 
 interface CalculatorResultsProps {
@@ -19,6 +18,21 @@ const CalculatorResults = ({ result, onStartOver, onDownloadReport }: Calculator
     }).format(value);
   };
 
+  const handleRequestQuote = () => {
+    const message = `*SOLICITAÇÃO DE ORÇAMENTO - NOGÁRIA*\n\n` +
+      `Olá! Gostaria de solicitar um orçamento personalizado baseado no cálculo que realizei:\n\n` +
+      `📊 *Resumo:*\n` +
+      `• Área total: ${result.totalAreaM2}m²\n` +
+      `• Funcionários: ${result.numeroFuncionarios}\n` +
+      `• Custo mensal estimado: ${formatCurrency(result.custoMensalTotal)}\n` +
+      `• Com desconto assinatura: ${formatCurrency(result.custoComDesconto)} (${result.percentualDesconto}% OFF)\n\n` +
+      `Gostaria de receber uma proposta personalizada com os produtos calculados.\n\n` +
+      `Aguardo retorno!`;
+    
+    const whatsappUrl = `https://wa.me/5591993717808?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -26,10 +40,10 @@ const CalculatorResults = ({ result, onStartOver, onDownloadReport }: Calculator
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-dark-navy mb-4">
-              Resultados da Análise
+              Sua Análise de Necessidades
             </h2>
             <p className="text-lg text-gray-600">
-              Relatório completo baseado nas informações fornecidas
+              Plano mensal personalizado baseado nas suas informações
             </p>
           </div>
 
@@ -48,11 +62,11 @@ const CalculatorResults = ({ result, onStartOver, onDownloadReport }: Calculator
 
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Horas/Mês</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-600">Funcionários</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-dark-navy">
-                  {result.horasLimpezaMensal.toLocaleString('pt-BR')}h
+                  {result.numeroFuncionarios}
                 </div>
               </CardContent>
             </Card>
@@ -63,165 +77,181 @@ const CalculatorResults = ({ result, onStartOver, onDownloadReport }: Calculator
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-grass-green">
-                  {formatCurrency(result.custoTotalMensal)}
+                  {formatCurrency(result.custoMensalTotal)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-grass-green bg-grass-green/5">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Conformidade NR-24</CardTitle>
+                <CardTitle className="text-sm font-medium text-grass-green">Com Assinatura</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-sky-blue">
-                  {result.conformidadeNR24.percentualConformidade}%
+                <div className="text-2xl font-bold text-grass-green">
+                  {formatCurrency(result.custoComDesconto)}
+                </div>
+                <div className="text-sm text-grass-green font-medium">
+                  {result.percentualDesconto}% OFF
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Detailed Results */}
+          {/* Products by Category */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Cost Breakdown */}
+            {/* Higiene */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <FileText className="w-5 h-5 mr-2 text-sky-blue" />
-                  Detalhamento de Custos
+                <CardTitle className="flex items-center text-sky-blue">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Higiene
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Produtos químicos</span>
-                  <span className="font-semibold">{formatCurrency(result.custoProdutosMensal)}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Mão de obra</span>
-                  <span className="font-semibold">{formatCurrency(result.custoMaoObraMensal)}</span>
-                </div>
-                <hr />
-                <div className="flex justify-between items-center text-lg">
-                  <span className="font-semibold text-dark-navy">Total Mensal</span>
-                  <span className="font-bold text-grass-green">{formatCurrency(result.custoTotalMensal)}</span>
-                </div>
-                <div className="text-sm text-gray-500 mt-2">
-                  Economia anual estimada: {formatCurrency(result.custoTotalMensal * 12 * 0.15)}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* NR-24 Compliance */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  {result.conformidadeNR24.percentualConformidade >= 80 ? (
-                    <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
-                  ) : (
-                    <AlertTriangle className="w-5 h-5 mr-2 text-yellow-600" />
-                  )}
-                  Conformidade NR-24
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Índice de Conformidade</span>
-                    <span className="font-semibold">{result.conformidadeNR24.percentualConformidade}%</span>
-                  </div>
-                  <Progress value={result.conformidadeNR24.percentualConformidade} className="h-2" />
-                </div>
-                
-                {result.conformidadeNR24.itensNaoConformes.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-red-600 mb-2">Itens Não Conformes:</h4>
-                    <ul className="text-sm space-y-1">
-                      {result.conformidadeNR24.itensNaoConformes.map((item, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-red-500 mr-2">•</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {result.conformidadeNR24.recomendacoes.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-grass-green mb-2">Recomendações:</h4>
-                    <ul className="text-sm space-y-1">
-                      {result.conformidadeNR24.recomendacoes.map((rec, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-grass-green mr-2">•</span>
-                          {rec}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Products Recommendations */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Produtos Recomendados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Categoria</th>
-                      <th className="text-left py-2">Produto</th>
-                      <th className="text-center py-2">Quantidade</th>
-                      <th className="text-right py-2">Custo Unit.</th>
-                      <th className="text-right py-2">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.produtosRecomendados.map((produto, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="py-2">{produto.categoria}</td>
-                        <td className="py-2">{produto.produto}</td>
-                        <td className="text-center py-2">{produto.quantidade} {produto.unidade}</td>
-                        <td className="text-right py-2">{formatCurrency(produto.custoUnitario)}</td>
-                        <td className="text-right py-2 font-semibold">{formatCurrency(produto.custoTotal)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Equipment List */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Equipamentos Necessários</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {result.equipamentosNecessarios.map((equipamento, index) => (
-                  <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-grass-green mr-3" />
-                    <span>{equipamento}</span>
+              <CardContent className="space-y-3">
+                {result.productsByCategory.higiene.map((produto, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{produto.nome}</h4>
+                      <p className="text-xs text-gray-500">{produto.formula}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">{produto.quantidade} {produto.unidade}</div>
+                      <div className="text-sm text-grass-green">{formatCurrency(produto.custoTotal)}</div>
+                    </div>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+
+            {/* Limpeza de Superfícies */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-grass-green">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Limpeza de Superfícies
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {result.productsByCategory.limpezaSuperficies.map((produto, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{produto.nome}</h4>
+                      <p className="text-xs text-gray-500">{produto.formula}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">{produto.quantidade} {produto.unidade}</div>
+                      <div className="text-sm text-grass-green">{formatCurrency(produto.custoTotal)}</div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Coleta de Resíduos */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-orange-600">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Coleta de Resíduos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {result.productsByCategory.coletaResiduos.map((produto, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{produto.nome}</h4>
+                      <p className="text-xs text-gray-500">{produto.formula}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">{produto.quantidade} {produto.unidade}</div>
+                      <div className="text-sm text-grass-green">{formatCurrency(produto.custoTotal)}</div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Acessórios */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-purple-600">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Acessórios
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {result.productsByCategory.acessorios.map((produto, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{produto.nome}</h4>
+                      <p className="text-xs text-gray-500">{produto.formula}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">{produto.quantidade} {produto.unidade}</div>
+                      <div className="text-sm text-grass-green">{formatCurrency(produto.custoTotal)}</div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Cost Summary */}
+          <Card className="mb-8 border-grass-green">
+            <CardHeader>
+              <CardTitle className="text-xl text-grass-green">Resumo Financeiro</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-lg">
+                  <span className="font-medium">Custo mensal sem desconto:</span>
+                  <span className="font-semibold">{formatCurrency(result.custoMensalTotal)}</span>
+                </div>
+                <div className="flex justify-between items-center text-lg text-grass-green border-t pt-4">
+                  <span className="font-medium">Com plano de assinatura ({result.percentualDesconto}% OFF):</span>
+                  <span className="font-bold text-2xl">{formatCurrency(result.custoComDesconto)}</span>
+                </div>
+                <div className="bg-grass-green/10 p-4 rounded-lg">
+                  <p className="text-sm text-grass-green font-medium">
+                    💰 Economia anual de {formatCurrency((result.custoMensalTotal - result.custoComDesconto) * 12)} com o plano de assinatura!
+                  </p>
+                </div>
+                <div className="text-sm text-gray-600">
+                  <p>{result.estimativaMensal}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Call to Action */}
+          <div className="bg-gradient-to-r from-grass-green to-sky-blue text-white p-8 rounded-xl text-center mb-8">
+            <h3 className="text-2xl font-bold mb-4">Pronto para economizar?</h3>
+            <p className="text-lg mb-6 opacity-90">
+              Solicite uma proposta personalizada e comece a economizar ainda hoje!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={handleRequestQuote}
+                size="lg"
+                className="bg-white text-grass-green hover:bg-gray-100 font-semibold"
+              >
+                <Phone className="w-5 h-5 mr-2" />
+                Solicitar Orçamento via WhatsApp
+              </Button>
+              <Button
+                onClick={onDownloadReport}
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-grass-green"
+              >
+                <Download className="w-5 h-5 mr-2" />
+                Baixar Relatório PDF
+              </Button>
+            </div>
+          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              onClick={onDownloadReport}
-              className="bg-sky-blue hover:bg-sky-blue/90 text-white"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Baixar Relatório Completo
-            </Button>
-            
             <Button
               onClick={onStartOver}
               variant="outline"

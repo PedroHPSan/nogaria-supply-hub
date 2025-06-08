@@ -8,10 +8,10 @@ interface ProgressIndicatorProps {
 
 const ProgressIndicator = ({ currentPhase }: ProgressIndicatorProps) => {
   const phases = [
-    { id: 'welcome', title: 'Boas-vindas', completed: currentPhase !== 'welcome' },
-    { id: 'questionnaire', title: 'Questionário', completed: currentPhase !== 'welcome' && currentPhase !== 'questionnaire' },
+    { id: 'welcome', title: 'Início', completed: currentPhase !== 'welcome' },
+    { id: 'questionnaire', title: 'Análise', completed: currentPhase !== 'welcome' && currentPhase !== 'questionnaire' },
     { id: 'lead-capture', title: 'Seus Dados', completed: currentPhase === 'results' },
-    { id: 'results', title: 'Resultados', completed: false },
+    { id: 'results', title: 'Orçamento', completed: false },
   ];
 
   return (
@@ -23,7 +23,7 @@ const ProgressIndicator = ({ currentPhase }: ProgressIndicatorProps) => {
               <div key={phase.id} className="flex items-center">
                 <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
                   currentPhase === phase.id 
-                    ? 'bg-grass-green text-dark-navy' 
+                    ? 'bg-grass-green text-white' 
                     : phase.completed 
                       ? 'bg-sky-blue text-white' 
                       : 'bg-gray-300 text-gray-600'
@@ -31,7 +31,7 @@ const ProgressIndicator = ({ currentPhase }: ProgressIndicatorProps) => {
                   {index + 1}
                 </div>
                 <span className={`ml-2 text-sm font-medium ${
-                  currentPhase === phase.id ? 'text-dark-navy' : 'text-gray-600'
+                  currentPhase === phase.id ? 'text-grass-green' : 'text-gray-600'
                 }`}>
                   {phase.title}
                 </span>
