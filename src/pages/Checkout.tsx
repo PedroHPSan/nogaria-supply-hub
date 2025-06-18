@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,21 @@ const Checkout = () => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
   };
 
+  const getItemPrice = (item: any) => {
+    // Handle both database cart items (with product) and local cart items
+    if (item.product && item.product.price !== undefined) {
+      return Number(item.product.price) || 0;
+    }
+    return Number(item.price) || 0;
+  };
+
+  const getItemName = (item: any) => {
+    if (item.product && item.product.name) {
+      return item.product.name;
+    }
+    return item.name || 'Produto';
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -53,9 +69,12 @@ const Checkout = () => {
     }
 
     // Create order message for WhatsApp
-    const orderDetails = cart.map(item => 
-      `• ${item.name || 'Produto'} - Qtd: ${item.quantity} - R$ ${((item.price || 0) * item.quantity).toFixed(2)}`
-    ).join('\n');
+    const orderDetails = cart.map(item => {
+      const price = getItemPrice(item);
+      const name = getItemName(item);
+      const total = price * item.quantity;
+      return `• ${name} - Qtd: ${item.quantity} - R$ ${total.toFixed(2)}`;
+    }).join('\n');
     
     const message = `*NOVO PEDIDO - NOGÁRIA*\n\n` +
       `*Cliente:* ${customerInfo.name}\n` +
@@ -200,49 +219,53 @@ const Checkout = () => {
                     </p>
                   ) : (
                     <div className="space-y-4">
-                      {cart.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex-1">
-                            <h4 className="font-medium">{item.name || 'Produto'}</h4>
-                            <p className="text-sm text-gray-500">
-                              R$ {(item.price || 0).toFixed(2)} cada
-                            </p>
+                      {cart.map((item) => {
+                        const price = getItemPrice(item);
+                        const name = getItemName(item);
+                        return (
+                          <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex-1">
+                              <h4 className="font-medium">{name}</h4>
+                              <p className="text-sm text-gray-500">
+                                R$ {price.toFixed(2)} cada
+                              </p>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateQuantity({ productId: item.id, quantity: Math.max(1, item.quantity - 1) })}
+                              >
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              
+                              <span className="px-3 py-1 bg-gray-100 rounded">
+                                {item.quantity}
+                              </span>
+                              
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateQuantity({ productId: item.id, quantity: item.quantity + 1 })}
+                              >
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                              
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeFromCart(item.id)}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
                           </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateQuantity({ productId: item.id, quantity: Math.max(1, item.quantity - 1) })}
-                            >
-                              <Minus className="w-3 h-3" />
-                            </Button>
-                            
-                            <span className="px-3 py-1 bg-gray-100 rounded">
-                              {item.quantity}
-                            </span>
-                            
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateQuantity({ productId: item.id, quantity: item.quantity + 1 })}
-                            >
-                              <Plus className="w-3 h-3" />
-                            </Button>
-                            
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeFromCart(item.id)}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       
                       <div className="border-t pt-4">
                         <div className="flex justify-between text-lg font-bold">
