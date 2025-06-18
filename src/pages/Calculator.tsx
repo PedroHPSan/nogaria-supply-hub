@@ -81,8 +81,6 @@ const Calculator = () => {
 
   const handleLeadCaptureSubmit = () => {
     // Here you would normally save the lead data to database/CRM
-    console.log('Lead data:', registrationData);
-    console.log('Calculation result:', calculationResult);
     
     setCurrentPhase('results');
     
@@ -104,7 +102,6 @@ const Calculator = () => {
     });
     
     // Here you would implement the actual PDF generation and download
-    console.log('Downloading report with data:', calculationResult, registrationData);
   };
 
   const handleStartOver = () => {
