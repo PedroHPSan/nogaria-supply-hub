@@ -38,7 +38,6 @@ const CategoryIT = () => {
 
   const addToCart = (product: any) => {
     setCart([...cart, product]);
-    console.log('Produto adicionado ao carrinho:', product);
   };
 
   return (

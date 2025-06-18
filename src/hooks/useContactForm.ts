@@ -41,7 +41,6 @@ export function useContactForm() {
 
       return { success: true };
     } catch (error) {
-      console.error('Error submitting contact form:', error);
       toast({
         title: "Erro ao enviar mensagem",
         description: "Tente novamente ou entre em contato por telefone.",
