@@ -10,56 +10,84 @@ import {
   Briefcase, 
   Monitor 
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const CategoriesGrid = () => {
+  // Fetch product counts by category
+  const { data: productCounts } = useQuery({
+    queryKey: ['product-counts'],
+    queryFn: async () => {
+      const { data: categories } = await supabase
+        .from('categories')
+        .select('id, name, slug');
+      
+      if (!categories) return {};
+      
+      const counts: Record<string, number> = {};
+      
+      for (const category of categories) {
+        const { count } = await supabase
+          .from('products')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', category.id)
+          .eq('in_stock', true);
+        
+        counts[category.slug] = count || 0;
+      }
+      
+      return counts;
+    },
+  });
+
   const categories = [
     {
       name: 'Limpeza',
+      slug: 'limpeza',
       icon: Droplet,
-      gradient: 'from-azure to-sky-blue',
-      products: '200+ produtos'
+      gradient: 'from-azure to-sky-blue'
     },
     {
       name: 'Higiene',
+      slug: 'higiene',
       icon: Sparkles,
-      gradient: 'from-sky-blue to-grass-green',
-      products: '150+ produtos'
+      gradient: 'from-sky-blue to-grass-green'
     },
     {
       name: 'EPI',
+      slug: 'epi',
       icon: HardHat,
-      gradient: 'from-deep-blue to-azure',
-      products: '80+ produtos'
+      gradient: 'from-deep-blue to-azure'
     },
     {
       name: 'Descartáveis',
+      slug: 'descartaveis',
       icon: Utensils,
-      gradient: 'from-grass-green to-neon-green',
-      products: '120+ produtos'
+      gradient: 'from-grass-green to-neon-green'
     },
     {
       name: 'Plásticos',
+      slug: 'plasticos',
       icon: Package,
-      gradient: 'from-azure to-deep-blue',
-      products: '90+ produtos'
+      gradient: 'from-azure to-deep-blue'
     },
     {
       name: 'Papelaria',
+      slug: 'papelaria',
       icon: FileText,
-      gradient: 'from-neon-green to-grass-green',
-      products: '300+ produtos'
+      gradient: 'from-neon-green to-grass-green'
     },
     {
       name: 'Material de Escritório',
+      slug: 'escritorio',
       icon: Briefcase,
-      gradient: 'from-deep-blue to-sky-blue',
-      products: '180+ produtos'
+      gradient: 'from-deep-blue to-sky-blue'
     },
     {
       name: 'Suprimentos de Informática',
+      slug: 'informatica',
       icon: Monitor,
-      gradient: 'from-sky-blue to-azure',
-      products: '100+ produtos'
+      gradient: 'from-sky-blue to-azure'
     }
   ];
 
@@ -78,6 +106,7 @@ const CategoriesGrid = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((category, index) => {
             const IconComponent = category.icon;
+            const productCount = productCounts?.[category.slug] || 0;
             return (
               <Card 
                 key={category.name}
@@ -96,7 +125,7 @@ const CategoriesGrid = () => {
                   </h3>
                   
                   <p className="text-gray-500 text-sm mb-4">
-                    {category.products}
+                    {productCount > 0 ? `${productCount} produtos` : 'Em breve'}
                   </p>
                   
                   <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
