@@ -196,8 +196,11 @@ const SecureAuthPage = () => {
           title: "Cadastro realizado com sucesso!",
           description: "Sua conta foi criada. Você já pode fazer login.",
         });
-        // Switch to login tab
-        document.querySelector('[value="signin"]')?.click();
+        // Switch to login tab - Fixed TypeScript error
+        const signInTab = document.querySelector('[value="signin"]') as HTMLElement;
+        if (signInTab) {
+          signInTab.click();
+        }
       }
     } catch (error) {
       console.error('Signup error:', error);
