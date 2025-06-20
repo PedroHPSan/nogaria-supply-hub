@@ -1,3 +1,4 @@
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Users, Upload, Mail, Star, TrendingUp } from 'lucide-react';
+import { Users, Upload, Mail, Star, TrendingUp, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useJobApplicationForm } from '@/hooks/useJobApplicationForm';
 
 const TrabalheConosco = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +18,8 @@ const TrabalheConosco = () => {
     mensagem: '',
     curriculo: null as File | null
   });
-  const { toast } = useToast();
+  
+  const { submitForm, isSubmitting } = useJobApplicationForm();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -34,36 +36,34 @@ const TrabalheConosco = () => {
         ...prev,
         curriculo: file
       }));
-    } else {
-      toast({
-        title: "Erro",
-        description: "Por favor, selecione apenas arquivos PDF.",
-        variant: "destructive"
-      });
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create mailto link
-    const subject = `Candidatura - ${formData.nomeCompleto}`;
-    const body = `Nome: ${formData.nomeCompleto}
-E-mail: ${formData.email}
-LinkedIn/Portfólio: ${formData.linkedinPortfolio}
-
-Mensagem:
-${formData.mensagem}
-
-Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'})`;
-
-    const mailtoLink = `mailto:rh@nogaria.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
-
-    toast({
-      title: "Candidatura enviada!",
-      description: "Seu cliente de e-mail foi aberto. Não esqueça de anexar seu currículo!",
+    const result = await submitForm({
+      nomeCompleto: formData.nomeCompleto,
+      email: formData.email,
+      linkedinPortfolio: formData.linkedinPortfolio,
+      mensagem: formData.mensagem,
+      curriculoFile: formData.curriculo || undefined,
     });
+
+    if (result.success) {
+      // Reset form
+      setFormData({
+        nomeCompleto: '',
+        email: '',
+        linkedinPortfolio: '',
+        mensagem: '',
+        curriculo: null
+      });
+      
+      // Reset file input
+      const fileInput = document.getElementById('curriculo') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    }
   };
 
   const benefits = [
@@ -152,7 +152,7 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
                   Envie sua candidatura
                 </CardTitle>
                 <p className="text-gray-600 mt-2">
-                  Preencha os dados abaixo e envie seu currículo. Entraremos em contato em breve!
+                  Preencha os dados abaixo. Entraremos em contato em breve!
                 </p>
               </CardHeader>
               <CardContent className="p-8">
@@ -171,6 +171,8 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
                         onChange={handleInputChange}
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="Seu nome completo"
+                        disabled={isSubmitting}
+                        minLength={2}
                       />
                     </div>
 
@@ -187,6 +189,7 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
                         onChange={handleInputChange}
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="seu@email.com"
+                        disabled={isSubmitting}
                       />
                     </div>
                   </div>
@@ -203,6 +206,7 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
                       onChange={handleInputChange}
                       className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                       placeholder="https://linkedin.com/in/seuperfil ou link do portfólio"
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -218,6 +222,7 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
                       onChange={handleFileChange}
                       className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                       required
+                      disabled={isSubmitting}
                     />
                     <p className="text-sm text-gray-500 mt-1">
                       Apenas arquivos PDF são aceitos (máx. 5MB)
@@ -236,15 +241,27 @@ Observação: Currículo em anexo (${formData.curriculo?.name || 'não anexado'}
                       onChange={handleInputChange}
                       className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green min-h-[120px]"
                       placeholder="Conte-nos um pouco sobre você, suas experiências e por que gostaria de trabalhar na Nogária"
+                      disabled={isSubmitting}
+                      minLength={10}
                     />
                   </div>
 
                   <Button 
                     type="submit"
+                    disabled={isSubmitting}
                     className="w-full bg-grass-green hover:bg-neon-green text-white font-gotham font-semibold py-3 text-lg"
                   >
-                    <Upload className="w-5 h-5 mr-2" />
-                    Enviar candidatura
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mr-2" />
+                        Enviar candidatura
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>

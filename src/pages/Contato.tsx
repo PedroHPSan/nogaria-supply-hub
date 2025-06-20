@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Mail, Phone, MapPin, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useContactForm } from '@/hooks/useContactForm';
+import { useSecureContactForm } from '@/hooks/useSecureContactForm';
 
 const Contato = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ const Contato = () => {
     mensagem: ''
   });
   
-  const { submitForm, isSubmitting } = useContactForm();
+  const { submitForm, isSubmitting } = useSecureContactForm();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -94,6 +94,7 @@ const Contato = () => {
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="Seu nome completo"
                         disabled={isSubmitting}
+                        minLength={2}
                       />
                     </div>
 
@@ -111,6 +112,7 @@ const Contato = () => {
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green"
                         placeholder="Nome da sua empresa"
                         disabled={isSubmitting}
+                        minLength={2}
                       />
                     </div>
 
@@ -146,6 +148,9 @@ const Contato = () => {
                         placeholder="(11) 99999-9999"
                         disabled={isSubmitting}
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Formato: (XX) XXXXX-XXXX
+                      </p>
                     </div>
 
                     <div>
@@ -161,6 +166,7 @@ const Contato = () => {
                         className="mt-2 border-gray-300 focus:border-grass-green focus:ring-grass-green min-h-[120px]"
                         placeholder="Como podemos ajudar sua empresa?"
                         disabled={isSubmitting}
+                        minLength={10}
                       />
                     </div>
 

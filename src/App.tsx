@@ -25,7 +25,7 @@ import TrabalheConosco from "./pages/TrabalheConosco";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import LGPDInfo from "./pages/LGPDInfo";
-import AuthPage from "./components/auth/AuthPage";
+import SecureAuthPage from "./components/auth/SecureAuthPage";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
@@ -43,7 +43,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth" element={<SecureAuthPage />} />
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/assinaturas" element={<Assinaturas />} />
             <Route path="/catalog" element={<Catalog />} />
