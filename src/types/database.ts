@@ -47,7 +47,7 @@ export interface Product {
   height_cm?: number | null;
   width_cm?: number | null;
   length_cm?: number | null;
-  status?: 'active' | 'inactive' | null;
+  status?: string | null;
   created_at: string | null;
   updated_at: string | null;
 }

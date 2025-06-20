@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +32,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
     width_cm: '',
     length_cm: '',
     stock_quantity: '',
-    status: 'active' as 'active' | 'inactive',
+    status: 'active',
     in_stock: true
   });
   const [categories, setCategories] = useState<Category[]>([]);
@@ -57,7 +56,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
         width_cm: product.width_cm?.toString() || '',
         length_cm: product.length_cm?.toString() || '',
         stock_quantity: product.stock_quantity.toString(),
-        status: product.status || 'active',
+        status: product.status === 'active' ? 'active' : 'inactive',
         in_stock: product.in_stock
       });
     }
@@ -254,7 +253,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
 
               <div>
                 <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value: 'active' | 'inactive') => setFormData({...formData, status: value})}>
+                <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

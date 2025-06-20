@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -75,8 +74,8 @@ const ProductsManagement = () => {
     product.sku?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const formatPrice = (price?: number) => {
-    if (!price) return 'N/A';
+  const formatPrice = (price?: number | null) => {
+    if (!price && price !== 0) return 'N/A';
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
