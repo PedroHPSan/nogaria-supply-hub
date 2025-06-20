@@ -12,7 +12,8 @@ import {
   Briefcase,
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FolderOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -25,8 +26,9 @@ const AdminSidebar = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
     { icon: Package, label: 'Produtos', path: '/admin/products' },
+    { icon: FolderOpen, label: 'Categorias', path: '/admin/categories' },
     { icon: ShoppingCart, label: 'Pedidos', path: '/admin/orders' },
-    { icon: Users, label: 'Clientes', path: '/admin/customers' },
+    { icon: Users, label: 'Usuários', path: '/admin/customers' },
     { icon: MessageSquare, label: 'Contatos', path: '/admin/contacts' },
     { icon: Briefcase, label: 'Candidaturas', path: '/admin/applications' },
   ];

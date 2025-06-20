@@ -1,11 +1,17 @@
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Loader2 } from 'lucide-react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
-import { Outlet } from 'react-router-dom';
+import AdminOverview from '@/components/admin/AdminOverview';
+import ProductsManagement from '@/components/admin/ProductsManagement';
+import CategoriesManagement from '@/components/admin/CategoriesManagement';
+import UsersManagement from '@/components/admin/UsersManagement';
+import OrdersManagement from '@/components/admin/OrdersManagement';
+import ContactsManagement from '@/components/admin/ContactsManagement';
+import ApplicationsManagement from '@/components/admin/ApplicationsManagement';
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -37,7 +43,15 @@ const AdminDashboard = () => {
       <AdminSidebar />
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
-          <Outlet />
+          <Routes>
+            <Route index element={<AdminOverview />} />
+            <Route path="products" element={<ProductsManagement />} />
+            <Route path="categories" element={<CategoriesManagement />} />
+            <Route path="customers" element={<UsersManagement />} />
+            <Route path="orders" element={<OrdersManagement />} />
+            <Route path="contacts" element={<ContactsManagement />} />
+            <Route path="applications" element={<ApplicationsManagement />} />
+          </Routes>
         </div>
       </main>
     </div>

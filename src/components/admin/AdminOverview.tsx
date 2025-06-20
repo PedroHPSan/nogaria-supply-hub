@@ -2,97 +2,130 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { Package, ShoppingCart, Users, MessageSquare } from 'lucide-react';
+import { Package, Users, ShoppingCart, MessageSquare, FolderOpen, Briefcase } from 'lucide-react';
+
+interface DashboardStats {
+  products: number;
+  categories: number;
+  users: number;
+  orders: number;
+  contacts: number;
+  applications: number;
+}
 
 const AdminOverview = () => {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     products: 0,
+    categories: 0,
+    users: 0,
     orders: 0,
-    customers: 0,
-    contacts: 0
+    contacts: 0,
+    applications: 0
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [
-          { count: products },
-          { count: orders },
-          { count: customers },
-          { count: contacts }
-        ] = await Promise.all([
-          supabase.from('products').select('*', { count: 'exact', head: true }),
-          supabase.from('orders').select('*', { count: 'exact', head: true }),
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('contact_submissions').select('*', { count: 'exact', head: true })
-        ]);
-
-        setStats({
-          products: products || 0,
-          orders: orders || 0,
-          customers: customers || 0,
-          contacts: contacts || 0
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
   }, []);
 
-  const statCards = [
-    { icon: Package, label: 'Produtos', value: stats.products, color: 'text-blue-600' },
-    { icon: ShoppingCart, label: 'Pedidos', value: stats.orders, color: 'text-green-600' },
-    { icon: Users, label: 'Clientes', value: stats.customers, color: 'text-purple-600' },
-    { icon: MessageSquare, label: 'Contatos', value: stats.contacts, color: 'text-orange-600' },
-  ];
+  const fetchStats = async () => {
+    try {
+      const [
+        { count: productsCount },
+        { count: categoriesCount },
+        { count: usersCount },
+        { count: ordersCount },
+        { count: contactsCount },
+        { count: applicationsCount }
+      ] = await Promise.all([
+        supabase.from('products').select('*', { count: 'exact', head: true }),
+        supabase.from('categories').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('orders').select('*', { count: 'exact', head: true }),
+        supabase.from('contact_submissions').select('*', { count: 'exact', head: true }),
+        supabase.from('job_applications').select('*', { count: 'exact', head: true })
+      ]);
 
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
+      setStats({
+        products: productsCount || 0,
+        categories: categoriesCount || 0,
+        users: usersCount || 0,
+        orders: ordersCount || 0,
+        contacts: contactsCount || 0,
+        applications: applicationsCount || 0
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statsCards = [
+    {
+      title: 'Produtos Cadastrados',
+      value: stats.products,
+      icon: Package,
+      color: 'text-blue-600'
+    },
+    {
+      title: 'Categorias Ativas',
+      value: stats.categories,
+      icon: FolderOpen,
+      color: 'text-green-600'
+    },
+    {
+      title: 'Usuários Ativos',
+      value: stats.users,
+      icon: Users,
+      color: 'text-purple-600'
+    },
+    {
+      title: 'Pedidos Realizados',
+      value: stats.orders,
+      icon: ShoppingCart,
+      color: 'text-orange-600'
+    },
+    {
+      title: 'Mensagens de Contato',
+      value: stats.contacts,
+      icon: MessageSquare,
+      color: 'text-pink-600'
+    },
+    {
+      title: 'Candidaturas',
+      value: stats.applications,
+      icon: Briefcase,
+      color: 'text-indigo-600'
+    }
+  ];
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard Administrativo</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statCards.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                </div>
-                <stat.icon className={`w-8 h-8 ${stat.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Painel Administrativo</h1>
+        <p className="text-gray-600">Visão geral e gerenciamento do sistema Nogária</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Atividade Recente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">Dashboard em desenvolvimento...</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Relatórios Rápidos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">Relatórios em desenvolvimento...</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {statsCards.map((card, index) => {
+          const IconComponent = card.icon;
+          return (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  {card.title}
+                </CardTitle>
+                <IconComponent className={`w-5 h-5 ${card.color}`} />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-900">
+                  {loading ? '...' : card.value.toLocaleString()}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
