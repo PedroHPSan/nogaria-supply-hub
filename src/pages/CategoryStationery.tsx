@@ -5,43 +5,43 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 
-const CategoryEPI = () => {
+const CategoryStationery = () => {
   const { addToCart } = useCart();
 
   const products = [
     {
-      id: 'epi-001',
-      name: 'Capacete de Segurança',
-      description: 'Proteção para trabalhos em altura',
-      price: 49.9,
+      id: 'pap-001',
+      name: 'Caderno Universitário',
+      description: '96 folhas pautadas',
+      price: 18.2,
       image: '/placeholder.svg'
     },
     {
-      id: 'epi-002',
-      name: 'Luva Nitrílica',
-      description: 'Resistência química e mecânica',
-      price: 8.5,
+      id: 'pap-002',
+      name: 'Bloco de Notas Adesivas',
+      description: 'Pacote com 400 folhas coloridas',
+      price: 14.7,
       image: '/placeholder.svg'
     },
     {
-      id: 'epi-003',
-      name: 'Óculos de Proteção',
-      description: 'Lentes antiembaçantes e UV',
-      price: 12.9,
+      id: 'pap-003',
+      name: 'Marcador Permanente',
+      description: 'Ponta chanfrada, cor preta',
+      price: 5.9,
       image: '/placeholder.svg'
     },
     {
-      id: 'epi-004',
-      name: 'Protetor Auricular',
-      description: 'Redução de ruídos intensos',
-      price: 3.75,
+      id: 'pap-004',
+      name: 'Folhas de Sulfite A4 75g',
+      description: 'Resma com 500 folhas',
+      price: 29.9,
       image: '/placeholder.svg'
     },
     {
-      id: 'epi-005',
-      name: 'Máscara Descartável',
-      description: 'Uso confortável e respirável',
-      price: 0.9,
+      id: 'pap-005',
+      name: 'Clips nº 2',
+      description: 'Caixa com 100 unidades',
+      price: 3.4,
       image: '/placeholder.svg'
     }
   ];
@@ -53,8 +53,8 @@ const CategoryEPI = () => {
       <section className="bg-gradient-to-r from-sky-blue to-grass-green text-white py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">EPI - Equipamentos</h1>
-            <p className="text-xl text-white/90">Segurança para sua equipe</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Papelaria</h1>
+            <p className="text-xl text-white/90">Suprimentos para escritório e escola</p>
           </div>
         </div>
       </section>
@@ -93,4 +93,4 @@ const CategoryEPI = () => {
   );
 };
 
-export default CategoryEPI;
+export default CategoryStationery;

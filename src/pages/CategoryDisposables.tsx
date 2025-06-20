@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 
-const CategoryDescartaveis = () => {
+const CategoryDisposables = () => {
   const { addToCart } = useCart();
 
   const products = [
@@ -93,4 +93,4 @@ const CategoryDescartaveis = () => {
   );
 };
 
-export default CategoryDescartaveis;
+export default CategoryDisposables;
