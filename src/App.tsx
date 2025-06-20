@@ -11,14 +11,14 @@ import Catalog from "./pages/Catalog";
 import Calculator from "./pages/Calculator";
 import Checkout from "./pages/Checkout";
 import CheckoutConfirmation from "./pages/CheckoutConfirmation";
-import CategoryIT from "./pages/CategoryIT";
 import CategoryCleaning from "./pages/CategoryCleaning";
 import CategoryOffice from "./pages/CategoryOffice";
 import CategoryHygiene from "./pages/CategoryHygiene";
-import CategoryEPI from "./pages/CategoryEPI";
+import CategoryPPE from "./pages/CategoryPPE";
 import CategoryDisposables from "./pages/CategoryDisposables";
 import CategoryPlastics from "./pages/CategoryPlastics";
 import CategoryStationery from "./pages/CategoryStationery";
+import CategoryITSupplies from "./pages/CategoryITSupplies";
 import Sobre from "./pages/Sobre";
 import Contato from "./pages/Contato";
 import TrabalheConosco from "./pages/TrabalheConosco";
@@ -47,15 +47,14 @@ const App = () => (
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/assinaturas" element={<Assinaturas />} />
             <Route path="/catalog" element={<Catalog />} />
-            <Route path="/catalog/it" element={<CategoryIT />} />
-            <Route path="/catalog/informatica" element={<CategoryIT />} />
-            <Route path="/catalog/limpeza" element={<CategoryCleaning />} />
-            <Route path="/catalog/escritorio" element={<CategoryOffice />} />
-            <Route path="/catalog/higiene" element={<CategoryHygiene />} />
-            <Route path="/catalog/epi" element={<CategoryEPI />} />
-            <Route path="/catalog/descartaveis" element={<CategoryDisposables />} />
-            <Route path="/catalog/plasticos" element={<CategoryPlastics />} />
-            <Route path="/catalog/papelaria" element={<CategoryStationery />} />
+            <Route path="/catalog/cleaning" element={<CategoryCleaning />} />
+            <Route path="/catalog/office" element={<CategoryOffice />} />
+            <Route path="/catalog/hygiene" element={<CategoryHygiene />} />
+            <Route path="/catalog/ppe" element={<CategoryPPE />} />
+            <Route path="/catalog/disposables" element={<CategoryDisposables />} />
+            <Route path="/catalog/plastics" element={<CategoryPlastics />} />
+            <Route path="/catalog/stationery" element={<CategoryStationery />} />
+            <Route path="/catalog/it-supplies" element={<CategoryITSupplies />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />
             <Route path="/sobre" element={<Sobre />} />

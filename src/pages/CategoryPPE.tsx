@@ -10,7 +10,7 @@ import Footer from '@/components/Footer';
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 
-const CategoryCleaning = () => {
+const CategoryPPE = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const navigate = useNavigate();
@@ -18,9 +18,9 @@ const CategoryCleaning = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { addToCart } = useCart();
 
-  const cleaningCategory = categories.find(cat => cat.slug === 'limpeza');
+  const epiCategory = categories.find(cat => cat.slug === 'epi');
   const categoryProducts = products.filter(product => 
-    product.category_id === cleaningCategory?.id &&
+    product.category_id === epiCategory?.id &&
     product.in_stock &&
     (!searchTerm || 
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,10 +62,10 @@ const CategoryCleaning = () => {
             </Button>
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                Material de Limpeza
+                EPI - Equipamentos de Proteção Individual
               </h1>
               <p className="text-xl text-white/90">
-                Produtos profissionais para higiene e limpeza
+                Equipamentos certificados para segurança no trabalho
               </p>
             </div>
           </div>
@@ -172,4 +172,4 @@ const CategoryCleaning = () => {
   );
 };
 
-export default CategoryCleaning;
+export default CategoryPPE;

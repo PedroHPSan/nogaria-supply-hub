@@ -49,56 +49,56 @@ const CategoriesGrid = () => {
       slug: 'limpeza',
       icon: Droplet,
       gradient: 'from-azure to-sky-blue',
-      path: '/catalog/limpeza'
+      path: '/catalog/cleaning'
     },
     {
       name: 'Higiene',
       slug: 'higiene',
       icon: Sparkles,
       gradient: 'from-sky-blue to-grass-green',
-      path: '/catalog/higiene'
+      path: '/catalog/hygiene'
     },
     {
       name: 'EPI',
       slug: 'epi',
       icon: HardHat,
       gradient: 'from-deep-blue to-azure',
-      path: '/catalog/epi'
+      path: '/catalog/ppe'
     },
     {
       name: 'Descartáveis',
       slug: 'descartaveis',
       icon: Utensils,
       gradient: 'from-grass-green to-neon-green',
-      path: '/catalog/descartaveis'
+      path: '/catalog/disposables'
     },
     {
       name: 'Plásticos',
       slug: 'plasticos',
       icon: Package,
       gradient: 'from-azure to-deep-blue',
-      path: '/catalog/plasticos'
+      path: '/catalog/plastics'
     },
     {
       name: 'Papelaria',
       slug: 'papelaria',
       icon: FileText,
       gradient: 'from-neon-green to-grass-green',
-      path: '/catalog/papelaria'
+      path: '/catalog/stationery'
     },
     {
       name: 'Material de Escritório',
       slug: 'escritorio',
       icon: Briefcase,
       gradient: 'from-deep-blue to-sky-blue',
-      path: '/catalog/escritorio'
+      path: '/catalog/office'
     },
     {
       name: 'Suprimentos de Informática',
       slug: 'informatica',
       icon: Monitor,
       gradient: 'from-sky-blue to-azure',
-      path: '/catalog/informatica'
+      path: '/catalog/it-supplies'
     }
   ];
 
@@ -125,7 +125,7 @@ const CategoriesGrid = () => {
             return (
               <Card 
                 key={category.name}
-                className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-0 overflow-hidden bg-gradient-to-br from-white to-gray-50"
+                className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-0 overflow-hidden bg-gradient-to-br from-white to-gray-50 rounded-2xl"
                 style={{
                   animationDelay: `${index * 100}ms`
                 }}
@@ -158,7 +158,7 @@ const CategoriesGrid = () => {
         <div className="text-center mt-12">
           <button 
             onClick={() => navigate('/catalog')}
-            className="bg-grass-green hover:bg-neon-green text-dark-navy px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:shadow-lg"
+            className="bg-grass-green hover:bg-neon-green text-dark-navy px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 hover:shadow-lg"
           >
             Ver todas as categorias
           </button>
