@@ -11,9 +11,12 @@ import {
   Monitor 
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 const CategoriesGrid = () => {
+  const navigate = useNavigate();
+
   // Fetch product counts by category
   const { data: productCounts } = useQuery({
     queryKey: ['product-counts'],
@@ -45,51 +48,63 @@ const CategoriesGrid = () => {
       name: 'Limpeza',
       slug: 'limpeza',
       icon: Droplet,
-      gradient: 'from-azure to-sky-blue'
+      gradient: 'from-azure to-sky-blue',
+      path: '/catalog/limpeza'
     },
     {
       name: 'Higiene',
       slug: 'higiene',
       icon: Sparkles,
-      gradient: 'from-sky-blue to-grass-green'
+      gradient: 'from-sky-blue to-grass-green',
+      path: '/catalog/higiene'
     },
     {
       name: 'EPI',
       slug: 'epi',
       icon: HardHat,
-      gradient: 'from-deep-blue to-azure'
+      gradient: 'from-deep-blue to-azure',
+      path: '/catalog/epi'
     },
     {
       name: 'Descartáveis',
       slug: 'descartaveis',
       icon: Utensils,
-      gradient: 'from-grass-green to-neon-green'
+      gradient: 'from-grass-green to-neon-green',
+      path: '/catalog/descartaveis'
     },
     {
       name: 'Plásticos',
       slug: 'plasticos',
       icon: Package,
-      gradient: 'from-azure to-deep-blue'
+      gradient: 'from-azure to-deep-blue',
+      path: '/catalog/plasticos'
     },
     {
       name: 'Papelaria',
       slug: 'papelaria',
       icon: FileText,
-      gradient: 'from-neon-green to-grass-green'
+      gradient: 'from-neon-green to-grass-green',
+      path: '/catalog/papelaria'
     },
     {
       name: 'Material de Escritório',
       slug: 'escritorio',
       icon: Briefcase,
-      gradient: 'from-deep-blue to-sky-blue'
+      gradient: 'from-deep-blue to-sky-blue',
+      path: '/catalog/escritorio'
     },
     {
       name: 'Suprimentos de Informática',
       slug: 'informatica',
       icon: Monitor,
-      gradient: 'from-sky-blue to-azure'
+      gradient: 'from-sky-blue to-azure',
+      path: '/catalog/informatica'
     }
   ];
+
+  const handleCategoryClick = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <section id="categorias" className="py-16 bg-white">
@@ -114,6 +129,7 @@ const CategoriesGrid = () => {
                 style={{
                   animationDelay: `${index * 100}ms`
                 }}
+                onClick={() => handleCategoryClick(category.path)}
               >
                 <CardContent className="p-6 text-center">
                   <div className={`bg-gradient-to-br ${category.gradient} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
@@ -125,7 +141,7 @@ const CategoriesGrid = () => {
                   </h3>
                   
                   <p className="text-gray-500 text-sm mb-4">
-                    {productCount > 0 ? `${productCount} produtos` : 'Em breve'}
+                    {productCount > 0 ? `${productCount} produtos` : 'Produtos disponíveis'}
                   </p>
                   
                   <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
@@ -140,7 +156,10 @@ const CategoriesGrid = () => {
         </div>
         
         <div className="text-center mt-12">
-          <button className="bg-grass-green hover:bg-neon-green text-dark-navy px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:shadow-lg">
+          <button 
+            onClick={() => navigate('/catalog')}
+            className="bg-grass-green hover:bg-neon-green text-dark-navy px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:shadow-lg"
+          >
             Ver todas as categorias
           </button>
         </div>
