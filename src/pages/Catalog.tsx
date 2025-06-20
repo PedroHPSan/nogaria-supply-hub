@@ -1,14 +1,15 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ShoppingCart, Search, Filter } from 'lucide-react';
+import { ShoppingCart, Search } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
+import ProductImageGallery from '@/components/ProductImageGallery';
 
 const Catalog = () => {
   const [searchParams] = useSearchParams();
@@ -16,21 +17,16 @@ const Catalog = () => {
   const [localSearchTerm, setLocalSearchTerm] = useState(searchQuery);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<{
+    images: string[];
+    name: string;
+  } | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  
   const navigate = useNavigate();
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { addToCart, cartCount } = useCart();
-
-  const categoryRoutes = [
-    { slug: 'limpeza', name: 'Material de Limpeza', route: '/catalog/cleaning', description: 'Produtos profissionais para higiene e limpeza' },
-    { slug: 'higiene', name: 'Produtos de Higiene', route: '/catalog/hygiene', description: 'Produtos para higiene pessoal e institucional' },
-    { slug: 'epi', name: 'EPI - Equipamentos de Proteção', route: '/catalog/ppe', description: 'Equipamentos certificados para segurança no trabalho' },
-    { slug: 'descartaveis', name: 'Produtos Descartáveis', route: '/catalog/disposables', description: 'Utensílios descartáveis para eventos e alimentação' },
-    { slug: 'plasticos', name: 'Produtos Plásticos', route: '/catalog/plastics', description: 'Embalagens e utensílios plásticos' },
-    { slug: 'papelaria', name: 'Papelaria', route: '/catalog/stationery', description: 'Materiais de papelaria e escritório' },
-    { slug: 'escritorio', name: 'Material de Escritório', route: '/catalog/office', description: 'Suprimentos essenciais para seu escritório' },
-    { slug: 'informatica', name: 'Suprimentos de TI', route: '/catalog/it-supplies', description: 'Equipamentos e acessórios para informática' }
-  ];
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = !localSearchTerm || 
@@ -50,8 +46,22 @@ const Catalog = () => {
     navigate('/checkout');
   };
 
-  const handleCategoryClick = (route: string) => {
-    navigate(route);
+  const handleCategoryClick = (categorySlug: string) => {
+    navigate(`/catalog/${categorySlug}`);
+  };
+
+  const openGallery = (product: any) => {
+    const images = product.images && product.images.length > 0 
+      ? product.images 
+      : product.image_url 
+      ? [product.image_url] 
+      : [];
+    
+    setSelectedProduct({
+      images,
+      name: product.name
+    });
+    setGalleryOpen(true);
   };
 
   if (productsLoading || categoriesLoading) {
@@ -160,44 +170,62 @@ const Catalog = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {filteredProducts.map((product) => (
-                  <Card key={product.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 overflow-hidden rounded-2xl">
-                    <CardHeader className="pb-4">
-                      <div className="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                        {product.image_url ? (
-                          <img 
-                            src={product.image_url} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" 
-                          />
-                        ) : (
-                          <span className="text-gray-400">Imagem do produto</span>
-                        )}
-                      </div>
-                      <CardTitle className="text-lg group-hover:text-grass-green transition-colors">
-                        {product.name}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {product.short_description || product.description}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-2xl font-bold text-grass-green">
-                          {product.price ? `R$ ${product.price.toFixed(2)}` : 'Consulte'}
-                        </span>
-                        <Button 
-                          onClick={() => addToCart({ productId: product.id })}
-                          className="bg-grass-green hover:bg-neon-green text-white rounded-xl px-6"
-                          disabled={!product.in_stock}
+                {filteredProducts.map((product) => {
+                  const mainImage = product.images && product.images.length > 0 
+                    ? product.images[0] 
+                    : product.image_url;
+                  const hasMultipleImages = (product.images && product.images.length > 1) || 
+                    (product.images && product.images.length === 0 && product.image_url);
+
+                  return (
+                    <Card key={product.id} className="group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-0 overflow-hidden rounded-2xl">
+                      <CardHeader className="pb-4">
+                        <div 
+                          className="w-full h-48 bg-gray-100 rounded-xl mb-4 flex items-center justify-center overflow-hidden cursor-pointer"
+                          onClick={() => openGallery(product)}
                         >
-                          <ShoppingCart className="w-4 h-4 mr-2" />
-                          {product.in_stock ? 'Adicionar' : 'Indisponível'}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                          {mainImage ? (
+                            <div className="relative w-full h-full">
+                              <img 
+                                src={mainImage} 
+                                alt={product.name} 
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" 
+                              />
+                              {hasMultipleImages && (
+                                <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                  +{(product.images?.length || 1)} fotos
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">Imagem do produto</span>
+                          )}
+                        </div>
+                        <CardTitle className="text-lg group-hover:text-grass-green transition-colors">
+                          {product.name}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          {product.short_description || product.description}
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-2xl font-bold text-grass-green">
+                            {product.price ? `R$ ${product.price.toFixed(2)}` : 'Consulte'}
+                          </span>
+                          <Button 
+                            onClick={() => addToCart({ productId: product.id })}
+                            className="bg-grass-green hover:bg-neon-green text-white rounded-xl px-6"
+                            disabled={!product.in_stock}
+                          >
+                            <ShoppingCart className="w-4 h-4 mr-2" />
+                            {product.in_stock ? 'Adicionar' : 'Indisponível'}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
               
               {filteredProducts.length === 0 && (
@@ -213,7 +241,7 @@ const Catalog = () => {
           </div>
         </section>
       ) : (
-        // Category Grid View
+        // Category Grid View - Now Dynamic
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-7xl mx-auto">
@@ -227,29 +255,39 @@ const Catalog = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {categoryRoutes.map((category, index) => (
+                {categories.map((category, index) => (
                   <Card 
-                    key={category.slug}
+                    key={category.id}
                     className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer border-0 overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50"
                     style={{
                       animationDelay: `${index * 100}ms`
                     }}
-                    onClick={() => handleCategoryClick(category.route)}
+                    onClick={() => handleCategoryClick(category.slug)}
                   >
                     <CardHeader className="text-center pb-4">
                       <div className="w-20 h-20 bg-gradient-to-br from-sky-blue to-grass-green rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                        <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                          <div className="w-6 h-6 bg-gradient-to-br from-sky-blue to-grass-green rounded"></div>
-                        </div>
+                        {category.image_url ? (
+                          <img 
+                            src={category.image_url} 
+                            alt={category.name}
+                            className="w-10 h-10 object-contain"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                            <div className="w-6 h-6 bg-gradient-to-br from-sky-blue to-grass-green rounded"></div>
+                          </div>
+                        )}
                       </div>
                       
                       <CardTitle className="text-xl font-bold text-dark-navy group-hover:text-grass-green transition-colors mb-3">
                         {category.name}
                       </CardTitle>
                       
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        {category.description}
-                      </p>
+                      {category.description && (
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          {category.description}
+                        </p>
+                      )}
                     </CardHeader>
                     
                     <CardContent className="pt-0">
@@ -267,6 +305,16 @@ const Catalog = () => {
             </div>
           </div>
         </section>
+      )}
+
+      {/* Image Gallery Modal */}
+      {selectedProduct && (
+        <ProductImageGallery
+          images={selectedProduct.images}
+          productName={selectedProduct.name}
+          isOpen={galleryOpen}
+          onClose={() => setGalleryOpen(false)}
+        />
       )}
       
       <Footer />

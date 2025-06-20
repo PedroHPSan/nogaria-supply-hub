@@ -1,86 +1,68 @@
 
+import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
-import Assinaturas from "./pages/Assinaturas";
-import Catalog from "./pages/Catalog";
-import Calculator from "./pages/Calculator";
-import Checkout from "./pages/Checkout";
-import CheckoutConfirmation from "./pages/CheckoutConfirmation";
-import CategoryCleaning from "./pages/CategoryCleaning";
-import CategoryOffice from "./pages/CategoryOffice";
-import CategoryHygiene from "./pages/CategoryHygiene";
-import CategoryPPE from "./pages/CategoryPPE";
-import CategoryDisposables from "./pages/CategoryDisposables";
-import CategoryPlastics from "./pages/CategoryPlastics";
-import CategoryStationery from "./pages/CategoryStationery";
-import CategoryITSupplies from "./pages/CategoryITSupplies";
-import Sobre from "./pages/Sobre";
-import Contato from "./pages/Contato";
-import TrabalheConosco from "./pages/TrabalheConosco";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfUse from "./pages/TermsOfUse";
-import LGPDInfo from "./pages/LGPDInfo";
-import SecureAuthPage from "./components/auth/SecureAuthPage";
-import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminLogin from "./pages/AdminLogin";
-import AdminOverview from "./components/admin/AdminOverview";
-import ProductsManagement from "./components/admin/ProductsManagement";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+const Index = lazy(() => import("./pages/Index"));
+const Catalog = lazy(() => import("./pages/Catalog"));
+const DynamicCategoryPage = lazy(() => import("./pages/DynamicCategoryPage"));
+const Sobre = lazy(() => import("./pages/Sobre"));
+const Contato = lazy(() => import("./pages/Contato"));
+const TrabalheConosco = lazy(() => import("./pages/TrabalheConosco"));
+const Assinaturas = lazy(() => import("./pages/Assinaturas"));
+const Calculator = lazy(() => import("./pages/Calculator"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const CheckoutConfirmation = lazy(() => import("./pages/CheckoutConfirmation"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const LGPDInfo = lazy(() => import("./pages/LGPDInfo"));
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<SecureAuthPage />} />
-            <Route path="/calculator" element={<Calculator />} />
-            <Route path="/assinaturas" element={<Assinaturas />} />
-            <Route path="/catalog" element={<Catalog />} />
-            <Route path="/catalog/cleaning" element={<CategoryCleaning />} />
-            <Route path="/catalog/office" element={<CategoryOffice />} />
-            <Route path="/catalog/hygiene" element={<CategoryHygiene />} />
-            <Route path="/catalog/ppe" element={<CategoryPPE />} />
-            <Route path="/catalog/disposables" element={<CategoryDisposables />} />
-            <Route path="/catalog/plastics" element={<CategoryPlastics />} />
-            <Route path="/catalog/stationery" element={<CategoryStationery />} />
-            <Route path="/catalog/it-supplies" element={<CategoryITSupplies />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />
-            <Route path="/sobre" element={<Sobre />} />
-            <Route path="/contato" element={<Contato />} />
-            <Route path="/trabalhe-conosco" element={<TrabalheConosco />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-use" element={<TermsOfUse />} />
-            <Route path="/lgpd" element={<LGPDInfo />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminDashboard />}>
-              <Route index element={<AdminOverview />} />
-              <Route path="products" element={<ProductsManagement />} />
-              <Route path="orders" element={<div>Orders Management - Em desenvolvimento</div>} />
-              <Route path="customers" element={<div>Customers Management - Em desenvolvimento</div>} />
-              <Route path="contacts" element={<div>Contacts Management - Em desenvolvimento</div>} />
-              <Route path="applications" element={<div>Applications Management - Em desenvolvimento</div>} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-grass-green mx-auto"></div>
+                <p className="mt-4 text-gray-600">Carregando...</p>
+              </div>
+            </div>
+          }>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/catalog" element={<Catalog />} />
+              <Route path="/catalog/:categorySlug" element={<DynamicCategoryPage />} />
+              <Route path="/sobre" element={<Sobre />} />
+              <Route path="/contato" element={<Contato />} />
+              <Route path="/trabalhe-conosco" element={<TrabalheConosco />} />
+              <Route path="/assinaturas" element={<Assinaturas />} />
+              <Route path="/calculadora" element={<Calculator />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/*" element={<AdminDashboard />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfUse />} />
+              <Route path="/lgpd" element={<LGPDInfo />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;

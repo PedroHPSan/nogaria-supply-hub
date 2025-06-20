@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Category } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
+import ImageUpload from './ImageUpload';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -28,13 +30,12 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
     brand: '',
     ean: '',
     weight_kg: '',
-    height_cm: '',
-    width_cm: '',
-    length_cm: '',
+    dimensions: '', // Will store as "HxWxL" format
     stock_quantity: '',
     status: 'active',
     in_stock: true
   });
+  const [images, setImages] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -42,6 +43,11 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
   useEffect(() => {
     fetchCategories();
     if (product) {
+      // Parse dimensions from individual fields back to "HxWxL" format
+      const dimensions = product.height_cm && product.width_cm && product.length_cm 
+        ? `${product.height_cm}x${product.width_cm}x${product.length_cm}`
+        : '';
+
       setFormData({
         name: product.name,
         description: product.description || '',
@@ -52,13 +58,18 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
         brand: product.brand || '',
         ean: product.ean || '',
         weight_kg: product.weight_kg?.toString() || '',
-        height_cm: product.height_cm?.toString() || '',
-        width_cm: product.width_cm?.toString() || '',
-        length_cm: product.length_cm?.toString() || '',
+        dimensions: dimensions,
         stock_quantity: product.stock_quantity.toString(),
         status: product.status === 'active' ? 'active' : 'inactive',
         in_stock: product.in_stock
       });
+
+      // Set images from product data
+      if (product.images && product.images.length > 0) {
+        setImages(product.images);
+      } else if (product.image_url) {
+        setImages([product.image_url]);
+      }
     }
   }, [product]);
 
@@ -76,11 +87,28 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
     }
   };
 
+  const parseDimensions = (dimensionsStr: string) => {
+    if (!dimensionsStr) return { height: null, width: null, length: null };
+    
+    const parts = dimensionsStr.split('x').map(part => parseFloat(part.trim()));
+    if (parts.length === 3 && parts.every(part => !isNaN(part))) {
+      return {
+        height: parts[0],
+        width: parts[1],
+        length: parts[2]
+      };
+    }
+    return { height: null, width: null, length: null };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Parse dimensions
+      const { height, width, length } = parseDimensions(formData.dimensions);
+
       const productData = {
         name: formData.name,
         description: formData.description || null,
@@ -91,12 +119,14 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
         brand: formData.brand || null,
         ean: formData.ean || null,
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
-        height_cm: formData.height_cm ? parseFloat(formData.height_cm) : null,
-        width_cm: formData.width_cm ? parseFloat(formData.width_cm) : null,
-        length_cm: formData.length_cm ? parseFloat(formData.length_cm) : null,
+        height_cm: height,
+        width_cm: width,
+        length_cm: length,
         stock_quantity: parseInt(formData.stock_quantity),
         status: formData.status,
-        in_stock: formData.in_stock
+        in_stock: formData.in_stock,
+        images: images,
+        image_url: images.length > 0 ? images[0] : null // First image as main image
       };
 
       let error;
@@ -150,6 +180,16 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
+                <Label htmlFor="sku">Código SKU *</Label>
+                <Input
+                  id="sku"
+                  value={formData.sku}
+                  onChange={(e) => setFormData({...formData, sku: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div>
                 <Label htmlFor="name">Nome do Produto *</Label>
                 <Input
                   id="name"
@@ -160,25 +200,18 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
               </div>
               
               <div>
-                <Label htmlFor="sku">SKU</Label>
-                <Input
-                  id="sku"
-                  value={formData.sku}
-                  onChange={(e) => setFormData({...formData, sku: e.target.value})}
+                <Label htmlFor="description">Descrição *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  rows={4}
+                  required
                 />
               </div>
 
               <div>
-                <Label htmlFor="brand">Marca</Label>
-                <Input
-                  id="brand"
-                  value={formData.brand}
-                  onChange={(e) => setFormData({...formData, brand: e.target.value})}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="category">Categoria</Label>
+                <Label htmlFor="category">Categoria *</Label>
                 <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione uma categoria" />
@@ -194,22 +227,11 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="short_description">Descrição Curta</Label>
-                <Textarea
-                  id="short_description"
-                  value={formData.short_description}
-                  onChange={(e) => setFormData({...formData, short_description: e.target.value})}
-                  rows={2}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description">Descrição Completa</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  rows={4}
+                <Label htmlFor="brand">Marca</Label>
+                <Input
+                  id="brand"
+                  value={formData.brand}
+                  onChange={(e) => setFormData({...formData, brand: e.target.value})}
                 />
               </div>
             </CardContent>
@@ -221,13 +243,14 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="price">Preço (R$)</Label>
+                <Label htmlFor="price">Preço (R$) *</Label>
                 <Input
                   id="price"
                   type="number"
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({...formData, price: e.target.value})}
+                  required
                 />
               </div>
 
@@ -252,7 +275,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">Status *</Label>
                 <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
                   <SelectTrigger>
                     <SelectValue />
@@ -265,7 +288,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="ean">EAN (Código de Barras)</Label>
+                <Label htmlFor="ean">Código de Barras (EAN)</Label>
                 <Input
                   id="ean"
                   value={formData.ean}
@@ -291,38 +314,32 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <Label htmlFor="height_cm">Altura (cm)</Label>
-                  <Input
-                    id="height_cm"
-                    type="number"
-                    step="0.01"
-                    value={formData.height_cm}
-                    onChange={(e) => setFormData({...formData, height_cm: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="width_cm">Largura (cm)</Label>
-                  <Input
-                    id="width_cm"
-                    type="number"
-                    step="0.01"
-                    value={formData.width_cm}
-                    onChange={(e) => setFormData({...formData, width_cm: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="length_cm">Comprimento (cm)</Label>
-                  <Input
-                    id="length_cm"
-                    type="number"
-                    step="0.01"
-                    value={formData.length_cm}
-                    onChange={(e) => setFormData({...formData, length_cm: e.target.value})}
-                  />
-                </div>
+              <div>
+                <Label htmlFor="dimensions">Dimensões (Altura x Largura x Profundidade em cm)</Label>
+                <Input
+                  id="dimensions"
+                  placeholder="Ex: 10x20x30"
+                  value={formData.dimensions}
+                  onChange={(e) => setFormData({...formData, dimensions: e.target.value})}
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Formato: Altura x Largura x Profundidade (em centímetros)
+                </p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Imagens do Produto</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ImageUpload
+                images={images}
+                onImagesChange={setImages}
+                maxImages={4}
+                maxSizeInMB={1}
+              />
             </CardContent>
           </Card>
         </div>
