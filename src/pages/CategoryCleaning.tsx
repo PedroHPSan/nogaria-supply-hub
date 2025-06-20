@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart } from 'lucide-react';
@@ -30,6 +29,20 @@ const CategoryCleaning = () => {
       name: 'Álcool Gel 70% - 500ml',
       description: 'Álcool gel para higienização das mãos',
       price: 8.90,
+      image: '/placeholder.svg'
+    },
+    {
+      id: 'clean-004',
+      name: 'Sabão em Pó 1kg',
+      description: 'Lava roupas concentrado para uso profissional',
+      price: 16.5,
+      image: '/placeholder.svg'
+    },
+    {
+      id: 'clean-005',
+      name: 'Limpador Perfumado 2L',
+      description: 'Aroma agradável para ambientes corporativos',
+      price: 11.75,
       image: '/placeholder.svg'
     }
   ];

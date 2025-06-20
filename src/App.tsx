@@ -13,6 +13,11 @@ import CheckoutConfirmation from "./pages/CheckoutConfirmation";
 import CategoryIT from "./pages/CategoryIT";
 import CategoryCleaning from "./pages/CategoryCleaning";
 import CategoryOffice from "./pages/CategoryOffice";
+import CategoryHygiene from "./pages/CategoryHygiene";
+import CategoryEPI from "./pages/CategoryEPI";
+import CategoryDescartaveis from "./pages/CategoryDescartaveis";
+import CategoryPlastics from "./pages/CategoryPlastics";
+import CategoryPapelaria from "./pages/CategoryPapelaria";
 import Sobre from "./pages/Sobre";
 import Contato from "./pages/Contato";
 import TrabalheConosco from "./pages/TrabalheConosco";
@@ -43,6 +48,11 @@ const App = () => (
             <Route path="/catalog" element={<Catalog />} />
             <Route path="/catalog/it" element={<CategoryIT />} />
             <Route path="/catalog/limpeza" element={<CategoryCleaning />} />
+            <Route path="/catalog/higiene" element={<CategoryHygiene />} />
+            <Route path="/catalog/epi" element={<CategoryEPI />} />
+            <Route path="/catalog/descartaveis" element={<CategoryDescartaveis />} />
+            <Route path="/catalog/plasticos" element={<CategoryPlastics />} />
+            <Route path="/catalog/papelaria" element={<CategoryPapelaria />} />
             <Route path="/catalog/escritorio" element={<CategoryOffice />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/confirmation" element={<CheckoutConfirmation />} />

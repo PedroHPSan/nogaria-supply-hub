@@ -7,11 +7,11 @@ const Footer = () => {
 
   const productCategories = [
     { name: 'Material de Limpeza', path: '/catalog/limpeza' },
-    { name: 'Produtos de Higiene', path: '/catalog' },
-    { name: 'EPI - Equipamentos', path: '/catalog' },
-    { name: 'Descartáveis', path: '/catalog' },
-    { name: 'Plásticos', path: '/catalog' },
-    { name: 'Papelaria', path: '/catalog/escritorio' },
+    { name: 'Produtos de Higiene', path: '/catalog/higiene' },
+    { name: 'EPI - Equipamentos', path: '/catalog/epi' },
+    { name: 'Descartáveis', path: '/catalog/descartaveis' },
+    { name: 'Plásticos', path: '/catalog/plasticos' },
+    { name: 'Papelaria', path: '/catalog/papelaria' },
     { name: 'Material de Escritório', path: '/catalog/escritorio' },
     { name: 'Suprimentos de TI', path: '/catalog/it' }
   ];

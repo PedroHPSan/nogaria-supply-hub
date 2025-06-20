@@ -33,6 +33,22 @@ const CategoryIT = () => {
       description: 'Cabo HDMI high speed com ethernet, 4K@60Hz',
       price: 'R$ 24,90',
       compatibility: 'Universal'
+    },
+    {
+      sku: 'INF-011',
+      name: 'Headset USB Confort',
+      image: '/placeholder-headset.jpg',
+      description: 'Fone com microfone ajustável para videoconferências',
+      price: 'R$ 79,90',
+      compatibility: 'Windows/Mac/Linux'
+    },
+    {
+      sku: 'INF-012',
+      name: 'Suporte para Notebook',
+      image: '/placeholder-stand.jpg',
+      description: 'Ajustável e resistente até 15"',
+      price: 'R$ 54,90',
+      compatibility: 'Universal'
     }
   ];
 
