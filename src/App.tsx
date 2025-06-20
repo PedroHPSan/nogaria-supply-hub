@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,10 @@ import TermsOfUse from "./pages/TermsOfUse";
 import LGPDInfo from "./pages/LGPDInfo";
 import AuthPage from "./components/auth/AuthPage";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
+import AdminOverview from "./components/admin/AdminOverview";
+import ProductsManagement from "./components/admin/ProductsManagement";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +52,18 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-use" element={<TermsOfUse />} />
             <Route path="/lgpd" element={<LGPDInfo />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminDashboard />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="products" element={<ProductsManagement />} />
+              <Route path="orders" element={<div>Orders Management - Em desenvolvimento</div>} />
+              <Route path="customers" element={<div>Customers Management - Em desenvolvimento</div>} />
+              <Route path="contacts" element={<div>Contacts Management - Em desenvolvimento</div>} />
+              <Route path="applications" element={<div>Applications Management - Em desenvolvimento</div>} />
+            </Route>
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -1,4 +1,3 @@
-
 export interface Profile {
   id: string;
   email: string;
@@ -8,6 +7,13 @@ export interface Profile {
   address?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface UserRole {
+  id: string;
+  user_id: string;
+  role: 'admin' | 'user';
+  created_at: string;
 }
 
 export interface Category {
@@ -34,6 +40,13 @@ export interface Product {
   in_stock: boolean;
   stock_quantity: number;
   specifications?: any;
+  brand?: string;
+  ean?: string;
+  weight_kg?: number;
+  height_cm?: number;
+  width_cm?: number;
+  length_cm?: number;
+  status?: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
 }

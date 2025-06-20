@@ -364,52 +364,73 @@ export type Database = {
       }
       products: {
         Row: {
+          brand: string | null
           category_id: string | null
           created_at: string | null
           description: string | null
+          ean: string | null
+          height_cm: number | null
           id: string
           image_url: string | null
           images: string[] | null
           in_stock: boolean
+          length_cm: number | null
           name: string
           price: number | null
           short_description: string | null
           sku: string | null
           specifications: Json | null
+          status: string | null
           stock_quantity: number
           updated_at: string | null
+          weight_kg: number | null
+          width_cm: number | null
         }
         Insert: {
+          brand?: string | null
           category_id?: string | null
           created_at?: string | null
           description?: string | null
+          ean?: string | null
+          height_cm?: number | null
           id?: string
           image_url?: string | null
           images?: string[] | null
           in_stock?: boolean
+          length_cm?: number | null
           name: string
           price?: number | null
           short_description?: string | null
           sku?: string | null
           specifications?: Json | null
+          status?: string | null
           stock_quantity?: number
           updated_at?: string | null
+          weight_kg?: number | null
+          width_cm?: number | null
         }
         Update: {
+          brand?: string | null
           category_id?: string | null
           created_at?: string | null
           description?: string | null
+          ean?: string | null
+          height_cm?: number | null
           id?: string
           image_url?: string | null
           images?: string[] | null
           in_stock?: boolean
+          length_cm?: number | null
           name?: string
           price?: number | null
           short_description?: string | null
           sku?: string | null
           specifications?: Json | null
+          status?: string | null
           stock_quantity?: number
           updated_at?: string | null
+          weight_kg?: number | null
+          width_cm?: number | null
         }
         Relationships: [
           {
@@ -541,12 +562,47 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       application_status:
@@ -565,6 +621,7 @@ export type Database = {
         | "cancelled"
       payment_method: "pix" | "credit_card" | "bank_slip" | "b2b_invoice"
       subscription_status: "active" | "inactive" | "cancelled" | "expired"
+      user_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -698,6 +755,7 @@ export const Constants = {
       ],
       payment_method: ["pix", "credit_card", "bank_slip", "b2b_invoice"],
       subscription_status: ["active", "inactive", "cancelled", "expired"],
+      user_role: ["admin", "user"],
     },
   },
 } as const

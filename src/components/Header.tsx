@@ -48,6 +48,10 @@ const Header = () => {
     }
   };
 
+  const handleAdminClick = () => {
+    navigate('/admin/login');
+  };
+
   return (
     <header className="bg-gradient-to-b from-dark-navy to-sky-blue text-white shadow-lg sticky top-0 z-50">
       {/* Top bar */}
@@ -57,13 +61,23 @@ const Header = () => {
             <span>📞 Atendimento: (91) 99371-7808</span>
             <span>📧 vendas@nogaria.com.br</span>
           </div>
-          <div className="hidden md:flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/65be387d-156c-4cb1-aa9a-e3ba406c6226.png" 
-              alt="WhatsApp Business" 
-              className="w-4 h-4"
-            />
-            <span>WhatsApp Business</span>
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/65be387d-156c-4cb1-aa9a-e3ba406c6226.png" 
+                alt="WhatsApp Business" 
+                className="w-4 h-4"
+              />
+              <span>WhatsApp Business</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleAdminClick}
+              className="text-xs text-white/80 hover:text-white hover:bg-white/10"
+            >
+              Área do Administrador
+            </Button>
           </div>
         </div>
       </div>
@@ -175,6 +189,15 @@ const Header = () => {
                 >
                   <User className="w-4 h-4 mr-2" />
                   {user ? 'Sair' : 'Minha Conta'}
+                </Button>
+              </li>
+              <li>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-white/20 text-white hover:bg-white/10"
+                  onClick={handleAdminClick}
+                >
+                  Área do Administrador
                 </Button>
               </li>
             </ul>
