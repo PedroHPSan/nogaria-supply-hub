@@ -9,6 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      calculator_leads: {
+        Row: {
+          business_email: string
+          cnpj: string | null
+          company_name: string
+          company_segment: string | null
+          created_at: string | null
+          full_name: string
+          id: string
+          job_title: string | null
+          lgpd_consent: boolean
+          phone: string
+          result_id: string | null
+        }
+        Insert: {
+          business_email: string
+          cnpj?: string | null
+          company_name: string
+          company_segment?: string | null
+          created_at?: string | null
+          full_name: string
+          id?: string
+          job_title?: string | null
+          lgpd_consent?: boolean
+          phone: string
+          result_id?: string | null
+        }
+        Update: {
+          business_email?: string
+          cnpj?: string | null
+          company_name?: string
+          company_segment?: string | null
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          job_title?: string | null
+          lgpd_consent?: boolean
+          phone?: string
+          result_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calculator_leads_result_id_fkey"
+            columns: ["result_id"]
+            isOneToOne: false
+            referencedRelation: "calculator_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calculator_results: {
         Row: {
           company_size: string | null
@@ -51,26 +101,26 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          product_id: string | null
+          product_id: string
           quantity: number
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
-          product_id?: string | null
+          product_id: string
           quantity?: number
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
-          product_id?: string | null
+          product_id?: string
           quantity?: number
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -206,7 +256,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          order_id: string | null
+          order_id: string
           product_id: string | null
           product_name: string
           product_price: number
@@ -216,7 +266,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
-          order_id?: string | null
+          order_id: string
           product_id?: string | null
           product_name: string
           product_price: number
@@ -226,7 +276,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
-          order_id?: string | null
+          order_id?: string
           product_id?: string | null
           product_name?: string
           product_price?: number
@@ -252,7 +302,12 @@ export type Database = {
       }
       orders: {
         Row: {
+          cnpj: string | null
+          company: string
           created_at: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
           id: string
           notes: string | null
           order_number: string
@@ -264,7 +319,12 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cnpj?: string | null
+          company: string
           created_at?: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
           id?: string
           notes?: string | null
           order_number: string
@@ -276,7 +336,12 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cnpj?: string | null
+          company?: string
           created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
           id?: string
           notes?: string | null
           order_number?: string
@@ -305,13 +370,13 @@ export type Database = {
           id: string
           image_url: string | null
           images: string[] | null
-          in_stock: boolean | null
+          in_stock: boolean
           name: string
           price: number | null
           short_description: string | null
           sku: string | null
           specifications: Json | null
-          stock_quantity: number | null
+          stock_quantity: number
           updated_at: string | null
         }
         Insert: {
@@ -321,13 +386,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
-          in_stock?: boolean | null
+          in_stock?: boolean
           name: string
           price?: number | null
           short_description?: string | null
           sku?: string | null
           specifications?: Json | null
-          stock_quantity?: number | null
+          stock_quantity?: number
           updated_at?: string | null
         }
         Update: {
@@ -337,13 +402,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
-          in_stock?: boolean | null
+          in_stock?: boolean
           name?: string
           price?: number | null
           short_description?: string | null
           sku?: string | null
           specifications?: Json | null
-          stock_quantity?: number | null
+          stock_quantity?: number
           updated_at?: string | null
         }
         Relationships: [
@@ -431,33 +496,33 @@ export type Database = {
           created_at: string | null
           end_date: string | null
           id: string
-          plan_id: string | null
+          plan_id: string
           start_date: string | null
           status: Database["public"]["Enums"]["subscription_status"] | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           auto_renew?: boolean | null
           created_at?: string | null
           end_date?: string | null
           id?: string
-          plan_id?: string | null
+          plan_id: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           auto_renew?: boolean | null
           created_at?: string | null
           end_date?: string | null
           id?: string
-          plan_id?: string | null
+          plan_id?: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {

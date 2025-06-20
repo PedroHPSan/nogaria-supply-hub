@@ -1,31 +1,46 @@
 
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { CartItem, Product } from '@/types/database';
+import { Product, CartItem } from '@/types/database';
+import { useToast } from './use-toast';
 
-export function useCart() {
+interface CartProduct extends Product {
+  quantity: number;
+}
+
+interface LocalCartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export const useCart = () => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const [localCart, setLocalCart] = useState<any[]>([]);
+  const { toast } = useToast();
+  const [cart, setCart] = useState<(CartItem | LocalCartItem)[]>([]);
+  const [cartCount, setCartCount] = useState(0);
 
-  // Load local cart from localStorage
+  // Load cart on mount
   useEffect(() => {
-    try {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      setLocalCart(cart);
-    } catch {
-      setLocalCart([]);
+    if (user) {
+      loadDatabaseCart();
+    } else {
+      loadLocalCart();
     }
-  }, []);
+  }, [user]);
 
-  // Database cart for authenticated users
-  const { data: dbCart = [], isLoading } = useQuery({
-    queryKey: ['cart', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
+  // Update cart count when cart changes
+  useEffect(() => {
+    const count = cart.reduce((total, item) => total + item.quantity, 0);
+    setCartCount(count);
+  }, [cart]);
+
+  const loadDatabaseCart = async () => {
+    if (!user) return;
+
+    try {
       const { data, error } = await supabase
         .from('cart_items')
         .select(`
@@ -33,148 +48,235 @@ export function useCart() {
           product:products(*)
         `)
         .eq('user_id', user.id);
-      
+
       if (error) throw error;
-      return data as CartItem[];
-    },
-    enabled: !!user,
-  });
+      setCart(data || []);
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar o carrinho.",
+        variant: "destructive"
+      });
+    }
+  };
 
-  const addToCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
-      if (user) {
-        // Add to database cart
-        const { data, error } = await supabase
+  const loadLocalCart = () => {
+    const localCart = localStorage.getItem('cart');
+    if (localCart) {
+      try {
+        setCart(JSON.parse(localCart));
+      } catch (error) {
+        console.error('Error parsing local cart:', error);
+        setCart([]);
+      }
+    } else {
+      setCart([]);
+    }
+  };
+
+  const saveLocalCart = (cartItems: LocalCartItem[]) => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+    setCart(cartItems);
+  };
+
+  const addToCart = async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
+    if (user) {
+      // Database cart for authenticated users
+      try {
+        // First, get the product details
+        const { data: product, error: productError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', productId)
+          .single();
+
+        if (productError) throw productError;
+
+        // Check if item already exists in cart
+        const { data: existingItem, error: checkError } = await supabase
           .from('cart_items')
-          .upsert({
-            user_id: user.id,
-            product_id: productId,
-            quantity,
-          })
-          .select();
-        
-        if (error) throw error;
-        return data;
-      } else {
-        // Add to local cart
-        const cart = [...localCart];
-        const existingItem = cart.find(item => item.productId === productId);
-        
-        if (existingItem) {
-          existingItem.quantity += quantity;
-        } else {
-          cart.push({ productId, quantity });
-        }
-        
-        setLocalCart(cart);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        return cart;
-      }
-    },
-    onSuccess: () => {
-      if (user) {
-        queryClient.invalidateQueries({ queryKey: ['cart', user.id] });
-      }
-    },
-  });
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('product_id', productId)
+          .single();
 
-  const removeFromCartMutation = useMutation({
-    mutationFn: async (productId: string) => {
-      if (user) {
+        if (checkError && checkError.code !== 'PGRST116') throw checkError;
+
+        if (existingItem) {
+          // Update quantity
+          const { error: updateError } = await supabase
+            .from('cart_items')
+            .update({ quantity: existingItem.quantity + quantity })
+            .eq('id', existingItem.id);
+
+          if (updateError) throw updateError;
+        } else {
+          // Insert new item
+          const { error: insertError } = await supabase
+            .from('cart_items')
+            .insert({
+              user_id: user.id,
+              product_id: productId,
+              quantity
+            });
+
+          if (insertError) throw insertError;
+        }
+
+        await loadDatabaseCart();
+        
+        toast({
+          title: "Produto adicionado",
+          description: `${product.name} foi adicionado ao carrinho.`
+        });
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível adicionar o produto ao carrinho.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Local cart for anonymous users
+      try {
+        const { data: product, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', productId)
+          .single();
+
+        if (error) throw error;
+
+        const localCart = [...cart] as LocalCartItem[];
+        const existingItemIndex = localCart.findIndex(item => item.id === productId);
+
+        if (existingItemIndex > -1) {
+          localCart[existingItemIndex].quantity += quantity;
+        } else {
+          localCart.push({
+            id: productId,
+            name: product.name,
+            price: product.price || 0,
+            quantity
+          });
+        }
+
+        saveLocalCart(localCart);
+        
+        toast({
+          title: "Produto adicionado",
+          description: `${product.name} foi adicionado ao carrinho.`
+        });
+      } catch (error) {
+        console.error('Error adding to local cart:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível adicionar o produto ao carrinho.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const removeFromCart = async (itemId: string) => {
+    if (user) {
+      try {
         const { error } = await supabase
           .from('cart_items')
           .delete()
-          .eq('user_id', user.id)
-          .eq('product_id', productId);
-        
-        if (error) throw error;
-      } else {
-        const cart = localCart.filter(item => item.productId !== productId);
-        setLocalCart(cart);
-        localStorage.setItem('cart', JSON.stringify(cart));
-      }
-    },
-    onSuccess: () => {
-      if (user) {
-        queryClient.invalidateQueries({ queryKey: ['cart', user.id] });
-      }
-    },
-  });
+          .eq('id', itemId);
 
-  const updateQuantityMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
-      if (quantity <= 0) {
-        return removeFromCartMutation.mutateAsync(productId);
+        if (error) throw error;
+        await loadDatabaseCart();
+      } catch (error) {
+        console.error('Error removing from cart:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível remover o produto do carrinho.",
+          variant: "destructive"
+        });
       }
-      
-      if (user) {
+    } else {
+      const localCart = (cart as LocalCartItem[]).filter(item => item.id !== itemId);
+      saveLocalCart(localCart);
+    }
+  };
+
+  const updateQuantity = async ({ productId, quantity }: { productId: string; quantity: number }) => {
+    if (quantity <= 0) {
+      await removeFromCart(productId);
+      return;
+    }
+
+    if (user) {
+      try {
         const { error } = await supabase
           .from('cart_items')
           .update({ quantity })
           .eq('user_id', user.id)
           .eq('product_id', productId);
-        
-        if (error) throw error;
-      } else {
-        const cart = localCart.map(item => 
-          item.productId === productId 
-            ? { ...item, quantity }
-            : item
-        );
-        setLocalCart(cart);
-        localStorage.setItem('cart', JSON.stringify(cart));
-      }
-    },
-    onSuccess: () => {
-      if (user) {
-        queryClient.invalidateQueries({ queryKey: ['cart', user.id] });
-      }
-    },
-  });
 
-  const clearCart = () => {
-    if (user) {
-      // Clear database cart
-      supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id)
-        .then(() => {
-          queryClient.invalidateQueries({ queryKey: ['cart', user.id] });
+        if (error) throw error;
+        await loadDatabaseCart();
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível atualizar a quantidade.",
+          variant: "destructive"
         });
+      }
     } else {
-      // Clear local cart
-      setLocalCart([]);
-      localStorage.removeItem('cart');
+      const localCart = [...cart] as LocalCartItem[];
+      const itemIndex = localCart.findIndex(item => item.id === productId);
+      
+      if (itemIndex > -1) {
+        localCart[itemIndex].quantity = quantity;
+        saveLocalCart(localCart);
+      }
+    }
+  };
+
+  const clearCart = async () => {
+    if (user) {
+      try {
+        const { error } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        setCart([]);
+      } catch (error) {
+        console.error('Error clearing cart:', error);
+      }
+    } else {
+      saveLocalCart([]);
     }
   };
 
   const getCartTotal = () => {
-    const cart = user ? dbCart : localCart;
     return cart.reduce((total, item) => {
-      if (user && item.product) {
-        // Database cart with populated product
-        return total + (item.product.price * item.quantity);
-      } else if (!user) {
-        // Local cart - we'll need to handle this differently since we don't have product info
-        // For now, return 0 for local cart total calculation
-        return total;
+      if ('product' in item && item.product) {
+        return total + (Number(item.product.price) || 0) * item.quantity;
+      } else if ('price' in item) {
+        return total + (Number(item.price) || 0) * item.quantity;
       }
       return total;
     }, 0);
   };
 
-  const cart = user ? dbCart : localCart;
-  const cartCount = cart.length;
-
   return {
     cart,
     cartCount,
-    isLoading: user ? isLoading : false,
-    addToCart: addToCartMutation.mutate,
-    removeFromCart: removeFromCartMutation.mutate,
-    updateQuantity: updateQuantityMutation.mutate,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
     clearCart,
     getCartTotal,
+    loadDatabaseCart,
+    loadLocalCart
   };
-}
+};

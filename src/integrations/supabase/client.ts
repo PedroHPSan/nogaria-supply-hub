@@ -3,12 +3,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env
-  .VITE_SUPABASE_PUBLISHABLE_KEY as string;
-
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
+const SUPABASE_URL = "https://ymixmyqbsuprgbtowrqt.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltaXhteXFic3VwcmdidG93cnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgyNzM3OTgsImV4cCI6MjA2Mzg0OTc5OH0.S8-JhgeH7fY4JzdPbYr19VwlpL7HsyomJmfqpk0M78c";
 
 // Create a mock client when environment variables are not set
 const createSupabaseClient = () => {
@@ -37,7 +33,13 @@ const createSupabaseClient = () => {
     } as any;
   }
   
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  });
 };
 
 export const supabase = createSupabaseClient();
