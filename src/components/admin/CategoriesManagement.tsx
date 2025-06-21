@@ -205,7 +205,7 @@ const CategoriesManagement = () => {
                             size="sm"
                             onClick={() => handleDelete(category.id, category.name)}
                             className="text-red-600 hover:text-red-700"
-                            disabled={category.product_count && category.product_count > 0}
+                            disabled={(category.product_count || 0) > 0}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
