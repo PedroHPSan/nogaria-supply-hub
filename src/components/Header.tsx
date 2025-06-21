@@ -16,7 +16,7 @@ const Header = () => {
 
   const navItems = [
     { label: 'Início', href: '/' },
-    { label: 'Calcule sua necessidade', href: '/calculator', isNew: true },
+    { label: 'Calcule sua necessidade', href: '/calculadora', isNew: true },
     { label: 'Assinaturas', href: '/assinaturas' },
     { label: 'Catálogo', href: '/catalog' },
     { label: 'Sobre', href: '/sobre' },
