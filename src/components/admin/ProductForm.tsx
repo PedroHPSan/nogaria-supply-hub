@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Category } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +38,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
   const [images, setImages] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -84,7 +85,43 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
       setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as categorias.",
+        variant: "destructive"
+      });
     }
+  };
+
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Nome do produto é obrigatório';
+    }
+
+    if (!formData.sku.trim()) {
+      errors.sku = 'Código SKU é obrigatório';
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = 'Descrição é obrigatória';
+    }
+
+    if (!formData.category_id) {
+      errors.category_id = 'Categoria é obrigatória';
+    }
+
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      errors.price = 'Preço deve ser maior que zero';
+    }
+
+    if (!formData.stock_quantity || parseInt(formData.stock_quantity) < 0) {
+      errors.stock_quantity = 'Quantidade em estoque deve ser maior ou igual a zero';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const parseDimensions = (dimensionsStr: string) => {
@@ -103,6 +140,16 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast({
+        title: "Erro de Validação",
+        description: "Por favor, corrija os erros do formulário antes de continuar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -160,6 +207,8 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
     }
   };
 
+  const selectedCategory = categories.find(cat => cat.id === formData.category_id);
+
   return (
     <div>
       <div className="flex items-center mb-6">
@@ -167,9 +216,14 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Voltar
         </Button>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {product ? 'Editar Produto' : 'Novo Produto'}
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {product ? 'Editar Produto' : 'Novo Produto'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {product ? 'Modifique as informações do produto' : 'Adicione um novo produto ao catálogo'}
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -185,8 +239,14 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
                   id="sku"
                   value={formData.sku}
                   onChange={(e) => setFormData({...formData, sku: e.target.value})}
-                  required
+                  className={formErrors.sku ? 'border-red-500' : ''}
                 />
+                {formErrors.sku && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {formErrors.sku}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -195,8 +255,14 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  required
+                  className={formErrors.name ? 'border-red-500' : ''}
                 />
+                {formErrors.name && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {formErrors.name}
+                  </p>
+                )}
               </div>
               
               <div>
@@ -206,15 +272,24 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   rows={4}
-                  required
+                  className={formErrors.description ? 'border-red-500' : ''}
                 />
+                {formErrors.description && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {formErrors.description}
+                  </p>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="category">Categoria *</Label>
-                <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma categoria" />
+                <Select 
+                  value={formData.category_id} 
+                  onValueChange={(value) => setFormData({...formData, category_id: value})}
+                >
+                  <SelectTrigger className={formErrors.category_id ? 'border-red-500' : ''}>
+                    <SelectValue placeholder="Selecione onde este produto aparecerá no catálogo" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -224,6 +299,26 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
                     ))}
                   </SelectContent>
                 </Select>
+                {selectedCategory && (
+                  <p className="text-green-600 text-sm mt-1">
+                    ✓ Este produto aparecerá em: <strong>/catalog/{selectedCategory.slug}</strong>
+                  </p>
+                )}
+                {formErrors.category_id && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {formErrors.category_id}
+                  </p>
+                )}
+                <p className="text-gray-500 text-sm mt-1">
+                  Selecione a categoria onde este produto deve aparecer no catálogo público.
+                </p>
+                {categories.length === 0 && (
+                  <p className="text-amber-600 text-sm mt-1 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    Nenhuma categoria encontrada. <a href="/admin/categories" className="underline ml-1">Criar categoria</a>
+                  </p>
+                )}
               </div>
 
               <div>
@@ -250,8 +345,14 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({...formData, price: e.target.value})}
-                  required
+                  className={formErrors.price ? 'border-red-500' : ''}
                 />
+                {formErrors.price && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {formErrors.price}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -261,8 +362,14 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
                   type="number"
                   value={formData.stock_quantity}
                   onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
-                  required
+                  className={formErrors.stock_quantity ? 'border-red-500' : ''}
                 />
+                {formErrors.stock_quantity && (
+                  <p className="text-red-500 text-sm mt-1 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {formErrors.stock_quantity}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">
