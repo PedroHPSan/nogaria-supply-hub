@@ -2,18 +2,17 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Mail, Building, User, Phone, FileText, Briefcase } from 'lucide-react';
+import { ArrowLeft, Mail, User } from 'lucide-react';
 import { useCalculatorLeads, CalculatorLead } from '@/hooks/useCalculatorLeads';
 import { CalculationResult } from './CalculationEngine';
 
 interface EnhancedLeadCaptureFormProps {
   calculatorData: any;
   calculationResult: CalculationResult;
-  onSubmit: () => void;
+  onSubmit: (result: any) => void;
   onBack: () => void;
 }
 
@@ -79,20 +78,6 @@ const EnhancedLeadCaptureForm = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    const result = await submitCalculatorLead(formData, calculatorData, calculationResult);
-    
-    if (result.success) {
-      onSubmit();
-    }
-  };
-
   const updateFormData = (field: keyof CalculatorLead, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -105,6 +90,23 @@ const EnhancedLeadCaptureForm = ({
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    const result = await submitCalculatorLead(formData, calculatorData, calculationResult);
+    
+    if (result.success) {
+      onSubmit({
+        ...result,
+        email: formData.business_email
+      });
+    }
   };
 
   return (
@@ -275,7 +277,7 @@ const EnhancedLeadCaptureForm = ({
                         ) : (
                           <>
                             <Mail className="w-4 h-4 mr-2" />
-                            Receber Relatório
+                            Gerar Relatório
                           </>
                         )}
                       </Button>

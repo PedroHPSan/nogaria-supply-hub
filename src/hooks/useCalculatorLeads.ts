@@ -75,12 +75,47 @@ export const useCalculatorLeads = () => {
         throw new Error('Erro ao salvar informações do lead');
       }
 
-      toast({
-        title: "Dados salvos com sucesso!",
-        description: "Suas informações foram registradas e você receberá o relatório em breve.",
+      // Send email report with retry logic
+      const { data: emailResponse, error: emailError } = await supabase.functions.invoke('send-calculator-report', {
+        body: {
+          leadId: leadRecord.id,
+          email: leadData.business_email,
+          reportData: {
+            calculationResult,
+            leadData,
+            resultId: resultData.id
+          }
+        }
       });
 
-      return { success: true, leadId: leadRecord.id, resultId: resultData.id };
+      if (emailError) {
+        console.error('Error sending email report:', emailError);
+        // Don't throw error - email failure shouldn't prevent showing results
+      }
+
+      const emailSent = emailResponse?.emailSent || false;
+      const reportHtml = emailResponse?.reportHtml || '';
+
+      if (emailSent) {
+        toast({
+          title: "Relatório enviado!",
+          description: `Relatório enviado para 📧 ${leadData.business_email}`,
+        });
+      } else {
+        toast({
+          title: "Atenção",
+          description: "Não foi possível enviar o e-mail, mas você pode visualizar o relatório abaixo.",
+          variant: "destructive"
+        });
+      }
+
+      return { 
+        success: true, 
+        leadId: leadRecord.id, 
+        resultId: resultData.id,
+        emailSent,
+        reportHtml
+      };
 
     } catch (error: any) {
       console.error('Error submitting calculator lead:', error);

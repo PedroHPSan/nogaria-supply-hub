@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -6,6 +5,7 @@ import CalculatorWelcome from '@/components/calculator/CalculatorWelcome';
 import CalculatorQuestionnaire from '@/components/calculator/CalculatorQuestionnaire';
 import EnhancedLeadCaptureForm from '@/components/calculator/EnhancedLeadCaptureForm';
 import CalculatorResults from '@/components/calculator/CalculatorResults';
+import ReportScreen from '@/components/calculator/ReportScreen';
 import ProgressIndicator from '@/components/calculator/ProgressIndicator';
 import { CalculatorInput, Phase } from '@/components/calculator/types';
 import { CalculationEngine, CalculationResult } from '@/components/calculator/CalculationEngine';
@@ -33,6 +33,12 @@ const Calculator = () => {
   });
 
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
+  const [reportData, setReportData] = useState<{
+    reportHtml: string;
+    leadId: string;
+    email: string;
+    emailSent: boolean;
+  } | null>(null);
 
   const updateCalculatorData = (data: Partial<CalculatorInput>) => {
     const updatedData = { ...calculatorData, ...data };
@@ -74,16 +80,19 @@ const Calculator = () => {
     }
   };
 
-  const handleLeadCaptureSubmit = () => {
+  const handleLeadCaptureSubmit = (submissionResult: any) => {
     // Mark session as completed
     trackCalculatorSession({ ...calculatorData, phase: 'lead_captured' }, true);
     
-    setCurrentPhase('results');
-    
-    toast({
-      title: "Relatório será enviado em breve!",
-      description: "Verifique seu email para acessar a análise completa.",
+    // Store report data and navigate to report screen
+    setReportData({
+      reportHtml: submissionResult.reportHtml,
+      leadId: submissionResult.leadId,
+      email: submissionResult.email || '',
+      emailSent: submissionResult.emailSent
     });
+    
+    setCurrentPhase('report');
   };
 
   const handleLeadCaptureBack = () => {
@@ -104,6 +113,7 @@ const Calculator = () => {
     setCurrentPhase('welcome');
     setCurrentStep(1);
     setCalculationResult(null);
+    setReportData(null);
     setCalculatorData({
       numeroFuncionarios: 0,
       frequenciaLimpezaManutencaoDiaria: '',
@@ -152,7 +162,18 @@ const Calculator = () => {
         />
       )}
 
-      {/* Results Phase */}
+      {/* New Report Screen Phase */}
+      {currentPhase === 'report' && reportData && (
+        <ReportScreen
+          reportHtml={reportData.reportHtml}
+          leadId={reportData.leadId}
+          email={reportData.email}
+          emailSent={reportData.emailSent}
+          onStartOver={handleStartOver}
+        />
+      )}
+
+      {/* Original Results Phase - keeping for backward compatibility */}
       {currentPhase === 'results' && calculationResult && (
         <CalculatorResults
           result={calculationResult}
