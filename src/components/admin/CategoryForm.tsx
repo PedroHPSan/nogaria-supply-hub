@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,10 +64,10 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
     }));
   };
 
-  const handleGifSelect = (gifPath: string | null) => {
-    setSelectedGif(gifPath);
-    if (gifPath) {
-      // Clear custom image URL when GIF is selected
+  const handleGifSelect = (imagePath: string | null) => {
+    setSelectedGif(imagePath);
+    if (imagePath) {
+      // Clear custom image URL when gallery image is selected
       setFormData(prev => ({ ...prev, image_url: '' }));
     }
   };
@@ -76,7 +75,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
   const handleImageUrlChange = (imageUrl: string) => {
     setFormData(prev => ({ ...prev, image_url: imageUrl }));
     if (imageUrl) {
-      // Clear GIF selection when custom image is provided
+      // Clear gallery selection when custom image is provided
       setSelectedGif(null);
     }
   };
@@ -86,7 +85,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
     setLoading(true);
 
     try {
-      // Use selected GIF if available, otherwise use custom image URL
+      // Use selected gallery image if available, otherwise use custom image URL
       const finalImageUrl = selectedGif || formData.image_url || null;
       
       const categoryData = {
@@ -178,7 +177,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
               />
             </div>
 
-            {/* Image/GIF Selection */}
+            {/* Image/Gallery Selection */}
             <div>
               <GifSelector 
                 selectedGif={selectedGif}
@@ -186,7 +185,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
               />
             </div>
 
-            {/* Custom Image URL - After the GIF selector */}
+            {/* Custom Image URL - After the Gallery selector */}
             <div>
               <Input
                 id="image_url"
