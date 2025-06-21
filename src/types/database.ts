@@ -6,8 +6,8 @@ export interface Profile {
   cnpj?: string | null;
   phone?: string | null;
   address?: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface UserRole {
@@ -76,8 +76,8 @@ export interface Order {
   company: string;
   cnpj?: string | null;
   notes?: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface OrderItem {
@@ -88,7 +88,7 @@ export interface OrderItem {
   product_price: number;
   quantity: number;
   subtotal: number;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface SubscriptionPlan {
@@ -99,8 +99,8 @@ export interface SubscriptionPlan {
   billing_period: string;
   features?: string[] | null;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface Subscription {
@@ -111,8 +111,8 @@ export interface Subscription {
   end_date?: string | null;
   auto_renew: boolean;
   status: 'active' | 'inactive' | 'cancelled' | 'expired';
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface ContactSubmission {
@@ -123,8 +123,8 @@ export interface ContactSubmission {
   telefone: string;
   mensagem: string;
   status: 'new' | 'in_progress' | 'resolved' | 'closed' | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface JobApplication {
@@ -135,8 +135,8 @@ export interface JobApplication {
   mensagem: string;
   curriculo_url?: string | null;
   status: 'received' | 'reviewing' | 'interview' | 'hired' | 'rejected' | null;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface CalculatorResult {
@@ -146,7 +146,7 @@ export interface CalculatorResult {
   monthly_usage?: any | null;
   estimated_savings?: number | null;
   recommendations?: any | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface CalculatorLead {
@@ -160,5 +160,5 @@ export interface CalculatorLead {
   company_segment?: string | null;
   job_title?: string | null;
   lgpd_consent: boolean;
-  created_at: string;
+  created_at: string | null;
 }

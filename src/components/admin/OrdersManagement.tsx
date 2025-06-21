@@ -62,6 +62,11 @@ const OrdersManagement = () => {
     }).format(price);
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
   const filteredOrders = orders.filter(order =>
     order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -113,9 +118,7 @@ const OrdersManagement = () => {
                       <TableCell>{order.customer_email}</TableCell>
                       <TableCell>{getStatusBadge(order.status)}</TableCell>
                       <TableCell>{formatPrice(order.total_amount)}</TableCell>
-                      <TableCell>
-                        {new Date(order.created_at).toLocaleDateString('pt-BR')}
-                      </TableCell>
+                      <TableCell>{formatDate(order.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button variant="outline" size="sm">

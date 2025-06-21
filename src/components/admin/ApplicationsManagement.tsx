@@ -80,6 +80,11 @@ const ApplicationsManagement = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
   const filteredApplications = applications.filter(app =>
     app.nome_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     app.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -141,9 +146,7 @@ const ApplicationsManagement = () => {
                         )}
                       </TableCell>
                       <TableCell>{getStatusBadge(application.status)}</TableCell>
-                      <TableCell>
-                        {new Date(application.created_at).toLocaleDateString('pt-BR')}
-                      </TableCell>
+                      <TableCell>{formatDate(application.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button variant="outline" size="sm">

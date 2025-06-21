@@ -59,6 +59,11 @@ const UsersManagement = () => {
     return <Badge variant="default">Usuário</Badge>;
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
   const filteredUsers = users.filter(user =>
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.company_name && user.company_name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -109,9 +114,7 @@ const UsersManagement = () => {
                       <TableCell>{user.cnpj || 'N/A'}</TableCell>
                       <TableCell>{user.phone || 'N/A'}</TableCell>
                       <TableCell>{getRoleBadge(user.user_roles)}</TableCell>
-                      <TableCell>
-                        {new Date(user.created_at).toLocaleDateString('pt-BR')}
-                      </TableCell>
+                      <TableCell>{formatDate(user.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button variant="outline" size="sm">

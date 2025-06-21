@@ -79,6 +79,11 @@ const ContactsManagement = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
   const filteredContacts = contacts.filter(contact =>
     contact.nome_completo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -130,9 +135,7 @@ const ContactsManagement = () => {
                       <TableCell>{contact.empresa}</TableCell>
                       <TableCell>{contact.telefone}</TableCell>
                       <TableCell>{getStatusBadge(contact.status)}</TableCell>
-                      <TableCell>
-                        {new Date(contact.created_at).toLocaleDateString('pt-BR')}
-                      </TableCell>
+                      <TableCell>{formatDate(contact.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button variant="outline" size="sm">
