@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import Footer from '@/components/Footer';
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import ProductImageGallery from '@/components/ProductImageGallery';
+import { getCategoryImage } from '@/constants/defaultImages';
 
 const Catalog = () => {
   const [searchParams] = useSearchParams();
@@ -265,18 +265,12 @@ const Catalog = () => {
                     onClick={() => handleCategoryClick(category.slug)}
                   >
                     <CardHeader className="text-center pb-4">
-                      <div className="w-20 h-20 bg-gradient-to-br from-sky-blue to-grass-green rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                        {category.image_url ? (
-                          <img 
-                            src={category.image_url} 
-                            alt={category.name}
-                            className="w-10 h-10 object-contain"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                            <div className="w-6 h-6 bg-gradient-to-br from-sky-blue to-grass-green rounded"></div>
-                          </div>
-                        )}
+                      <div className="w-20 h-20 bg-gradient-to-br from-sky-blue to-grass-green rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg overflow-hidden">
+                        <img 
+                          src={getCategoryImage(category.image_url)} 
+                          alt={category.name}
+                          className="w-full h-full object-cover rounded-2xl"
+                        />
                       </div>
                       
                       <CardTitle className="text-xl font-bold text-dark-navy group-hover:text-grass-green transition-colors mb-3">

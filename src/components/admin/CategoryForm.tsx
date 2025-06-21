@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,6 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Category } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
-import GifSelector from './GifSelector';
 
 interface CategoryFormProps {
   category?: Category | null;
@@ -16,14 +16,15 @@ interface CategoryFormProps {
   onCancel: () => void;
 }
 
+// Default image for all categories - modern minimalist design
+const DEFAULT_CATEGORY_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxyZWN0IHg9IjYwIiB5PSI2MCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuOSIvPgo8cGF0aCBkPSJNODUgODVIMTE1VjExNUg4NVY4NVoiIGZpbGw9InVybCgjZ3JhZGllbnQxX2xpbmVhcl8xXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfMV8xIiB4MT0iMCIgeTE9IjAiIHgyPSIyMDAiIHkyPSIyMDAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzM5QjJEQiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDFfbGluZWFyXzFfMSIgeDE9Ijg1IiB5MT0iODUiIHgyPSIxMTUiIHkyPSIxMTUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzM5QjJEQiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K';
+
 const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
-    description: '',
-    image_url: ''
+    description: ''
   });
-  const [selectedGif, setSelectedGif] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -32,16 +33,8 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
       setFormData({
         name: category.name,
         slug: category.slug,
-        description: category.description || '',
-        image_url: category.image_url || ''
+        description: category.description || ''
       });
-      
-      // Check if the current image_url is one of our predefined GIFs
-      if (category.image_url && category.image_url.startsWith('/assets/gifs/')) {
-        setSelectedGif(category.image_url);
-      } else {
-        setSelectedGif(null);
-      }
     }
   }, [category]);
 
@@ -64,35 +57,16 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
     }));
   };
 
-  const handleGifSelect = (imagePath: string | null) => {
-    setSelectedGif(imagePath);
-    if (imagePath) {
-      // Clear custom image URL when gallery image is selected
-      setFormData(prev => ({ ...prev, image_url: '' }));
-    }
-  };
-
-  const handleImageUrlChange = (imageUrl: string) => {
-    setFormData(prev => ({ ...prev, image_url: imageUrl }));
-    if (imageUrl) {
-      // Clear gallery selection when custom image is provided
-      setSelectedGif(null);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Use selected gallery image if available, otherwise use custom image URL
-      const finalImageUrl = selectedGif || formData.image_url || null;
-      
       const categoryData = {
         name: formData.name,
         slug: formData.slug,
         description: formData.description || null,
-        image_url: finalImageUrl
+        image_url: DEFAULT_CATEGORY_IMAGE // Always use default image
       };
 
       let error;
@@ -177,44 +151,22 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
               />
             </div>
 
-            {/* Image/Gallery Selection */}
+            {/* Preview of default image */}
             <div>
-              <GifSelector 
-                selectedGif={selectedGif}
-                onGifSelect={handleGifSelect}
-              />
-            </div>
-
-            {/* Custom Image URL - After the Gallery selector */}
-            <div>
-              <Input
-                id="image_url"
-                type="url"
-                value={formData.image_url}
-                onChange={(e) => handleImageUrlChange(e.target.value)}
-                placeholder="https://exemplo.com/imagem.jpg"
-              />
-            </div>
-
-            {/* Preview of selected image */}
-            {(selectedGif || formData.image_url) && (
-              <div>
-                <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Preview da imagem selecionada
-                </Label>
-                <div className="w-40 h-28 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
-                  <img 
-                    src={selectedGif || formData.image_url} 
-                    alt="Preview da categoria"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                </div>
+              <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                Imagem da categoria
+              </Label>
+              <div className="w-40 h-28 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
+                <img 
+                  src={DEFAULT_CATEGORY_IMAGE} 
+                  alt="Imagem padrão da categoria"
+                  className="w-full h-full object-cover"
+                />
               </div>
-            )}
+              <p className="text-sm text-gray-500 mt-2">
+                Uma imagem padrão será automaticamente atribuída a esta categoria.
+              </p>
+            </div>
           </CardContent>
         </Card>
 

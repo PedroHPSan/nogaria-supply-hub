@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import Footer from '@/components/Footer';
 import { useProducts, useCategories } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import ProductImageGallery from '@/components/ProductImageGallery';
+import { getCategoryImage } from '@/constants/defaultImages';
 
 const DynamicCategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -100,10 +100,18 @@ const DynamicCategoryPage = () => {
               Voltar ao Catálogo
             </Button>
             <div className="text-center">
+              {/* Category Image Display */}
+              <div className="w-24 h-24 mx-auto mb-6 rounded-2xl overflow-hidden shadow-lg">
+                <img 
+                  src={getCategoryImage(currentCategory?.image_url)} 
+                  alt={currentCategory?.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                {currentCategory.name}
+                {currentCategory?.name}
               </h1>
-              {currentCategory.description && (
+              {currentCategory?.description && (
                 <p className="text-xl text-white/90">
                   {currentCategory.description}
                 </p>
