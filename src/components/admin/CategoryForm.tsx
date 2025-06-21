@@ -9,6 +9,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Category } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
+import GifSelector from './GifSelector';
 
 interface CategoryFormProps {
   category?: Category | null;
@@ -23,6 +24,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
     description: '',
     image_url: ''
   });
+  const [selectedGif, setSelectedGif] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -34,6 +36,13 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
         description: category.description || '',
         image_url: category.image_url || ''
       });
+      
+      // Check if the current image_url is one of our predefined GIFs
+      if (category.image_url && category.image_url.startsWith('/assets/gifs/')) {
+        setSelectedGif(category.image_url);
+      } else {
+        setSelectedGif(null);
+      }
     }
   }, [category]);
 
@@ -56,16 +65,35 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
     }));
   };
 
+  const handleGifSelect = (gifPath: string | null) => {
+    setSelectedGif(gifPath);
+    if (gifPath) {
+      // Clear custom image URL when GIF is selected
+      setFormData(prev => ({ ...prev, image_url: '' }));
+    }
+  };
+
+  const handleImageUrlChange = (imageUrl: string) => {
+    setFormData(prev => ({ ...prev, image_url: imageUrl }));
+    if (imageUrl) {
+      // Clear GIF selection when custom image is provided
+      setSelectedGif(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Use selected GIF if available, otherwise use custom image URL
+      const finalImageUrl = selectedGif || formData.image_url || null;
+      
       const categoryData = {
         name: formData.name,
         slug: formData.slug,
         description: formData.description || null,
-        image_url: formData.image_url || null
+        image_url: finalImageUrl
       };
 
       let error;
@@ -116,7 +144,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
           <CardHeader>
             <CardTitle>Informações da Categoria</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div>
               <Label htmlFor="name">Nome da Categoria *</Label>
               <Input
@@ -150,16 +178,46 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
               />
             </div>
 
+            {/* GIF Selector */}
             <div>
-              <Label htmlFor="image_url">URL da Imagem/Ícone</Label>
+              <GifSelector 
+                selectedGif={selectedGif}
+                onGifSelect={handleGifSelect}
+              />
+            </div>
+
+            {/* Custom Image URL - Alternative Option */}
+            <div>
+              <Label htmlFor="image_url">OU - URL da Imagem Personalizada</Label>
               <Input
                 id="image_url"
                 type="url"
                 value={formData.image_url}
-                onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                onChange={(e) => handleImageUrlChange(e.target.value)}
                 placeholder="https://exemplo.com/imagem.jpg"
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Deixe em branco se você selecionou um GIF acima.
+              </p>
             </div>
+
+            {/* Preview of selected image */}
+            {(selectedGif || formData.image_url) && (
+              <div>
+                <Label>Preview da Imagem</Label>
+                <div className="mt-2 w-32 h-20 bg-gray-100 rounded-lg overflow-hidden border">
+                  <img 
+                    src={selectedGif || formData.image_url} 
+                    alt="Preview da categoria"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
