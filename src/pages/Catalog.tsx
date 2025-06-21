@@ -265,11 +265,11 @@ const Catalog = () => {
                     onClick={() => handleCategoryClick(category.slug)}
                   >
                     <CardHeader className="text-center pb-4">
-                      <div className="w-20 h-20 bg-gradient-to-br from-sky-blue to-grass-green rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg overflow-hidden">
+                      <div className="w-24 h-24 bg-gradient-to-br from-sky-blue via-azure to-grass-green rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg overflow-hidden p-3">
                         <img 
                           src={getCategoryImage(category.image_url)} 
                           alt={category.name}
-                          className="w-full h-full object-cover rounded-2xl"
+                          className="w-full h-full object-contain filter brightness-0 invert"
                         />
                       </div>
                       

@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Droplet, 
@@ -119,16 +118,12 @@ const CategoriesGrid = () => {
                 onClick={() => handleCategoryClick(category.slug)}
               >
                 <CardContent className="p-6 text-center">
-                  <div className={`bg-gradient-to-br ${gradient} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    {category.image_url ? (
-                      <img 
-                        src={category.image_url} 
-                        alt={category.name}
-                        className="w-8 h-8 object-contain"
-                      />
-                    ) : (
-                      <IconComponent className="w-8 h-8 text-white" />
-                    )}
+                  <div className={`bg-gradient-to-br ${gradient} w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg p-3`}>
+                    <img 
+                      src="/lovable-uploads/722fe65d-b32a-419e-b146-1ffeff62ad00.png"
+                      alt={category.name}
+                      className="w-full h-full object-contain filter brightness-0 invert"
+                    />
                   </div>
                   
                   <h3 className="font-semibold text-lg text-dark-navy mb-2 group-hover:text-azure transition-colors">
