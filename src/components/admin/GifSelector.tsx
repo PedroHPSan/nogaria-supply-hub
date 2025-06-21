@@ -18,14 +18,50 @@ interface GifSelectorProps {
 }
 
 const IMAGE_OPTIONS: ImageOption[] = [
+  // Cleaning & Hygiene
   { path: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7', label: 'Limpeza', name: 'cleaning' },
   { path: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b', label: 'Higiene', name: 'hygiene' },
+  { path: 'https://images.unsplash.com/photo-1631947430066-48c30d57b943', label: 'Produtos de Limpeza', name: 'cleaning-supplies' },
+  
+  // Safety & PPE
   { path: 'https://images.unsplash.com/photo-1518770660439-4636190af475', label: 'EPI', name: 'ppe' },
-  { path: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6', label: 'Descartáveis', name: 'disposables' },
-  { path: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d', label: 'Plásticos', name: 'plastics' },
+  { path: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f', label: 'Segurança', name: 'safety' },
+  
+  // Office & Stationery
   { path: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158', label: 'Papelaria', name: 'stationery' },
   { path: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e', label: 'Material de Escritório', name: 'office-supplies' },
-  { path: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5', label: 'Informática', name: 'it-supplies' }
+  { path: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40', label: 'Escritório Moderno', name: 'modern-office' },
+  { path: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5', label: 'Organização', name: 'organization' },
+  
+  // Technology & IT
+  { path: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5', label: 'Informática', name: 'it-supplies' },
+  { path: 'https://images.unsplash.com/photo-1531297484001-80022131f5a1', label: 'Tecnologia', name: 'technology' },
+  { path: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7', label: 'Programação', name: 'programming' },
+  { path: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f', label: 'Computadores', name: 'computers' },
+  
+  // Disposables & Packaging
+  { path: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6', label: 'Descartáveis', name: 'disposables' },
+  { path: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d', label: 'Plásticos', name: 'plastics' },
+  { path: 'https://images.unsplash.com/photo-1607748964467-d83a3304a5c8', label: 'Embalagens', name: 'packaging' },
+  { path: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43', label: 'Sustentabilidade', name: 'sustainability' },
+  
+  // Food & Kitchen
+  { path: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136', label: 'Cozinha Industrial', name: 'industrial-kitchen' },
+  { path: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b', label: 'Utensílios', name: 'utensils' },
+  { path: 'https://images.unsplash.com/photo-1574484284002-952d92456975', label: 'Alimentação', name: 'food-service' },
+  
+  // Healthcare & Medical
+  { path: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56', label: 'Saúde', name: 'healthcare' },
+  { path: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f', label: 'Médico', name: 'medical' },
+  
+  // Industrial & Manufacturing
+  { path: 'https://images.unsplash.com/photo-1565024557982-d9cb12b8e3b8', label: 'Industrial', name: 'industrial' },
+  { path: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758', label: 'Manufatura', name: 'manufacturing' },
+  
+  // General Business
+  { path: 'https://images.unsplash.com/photo-1497366216548-37526070297c', label: 'Negócios', name: 'business' },
+  { path: 'https://images.unsplash.com/photo-1553877522-43269d4ea984', label: 'Corporativo', name: 'corporate' },
+  { path: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72', label: 'Gestão', name: 'management' }
 ];
 
 const GifSelector = ({ selectedGif, onGifSelect }: GifSelectorProps) => {
