@@ -178,7 +178,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
               />
             </div>
 
-            {/* GIF Selector */}
+            {/* Image/GIF Selection */}
             <div>
               <GifSelector 
                 selectedGif={selectedGif}
@@ -186,9 +186,8 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
               />
             </div>
 
-            {/* Custom Image URL - Alternative Option */}
+            {/* Custom Image URL - After the GIF selector */}
             <div>
-              <Label htmlFor="image_url">OU - URL da Imagem Personalizada</Label>
               <Input
                 id="image_url"
                 type="url"
@@ -196,16 +195,15 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
                 onChange={(e) => handleImageUrlChange(e.target.value)}
                 placeholder="https://exemplo.com/imagem.jpg"
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Deixe em branco se você selecionou um GIF acima.
-              </p>
             </div>
 
             {/* Preview of selected image */}
             {(selectedGif || formData.image_url) && (
               <div>
-                <Label>Preview da Imagem</Label>
-                <div className="mt-2 w-32 h-20 bg-gray-100 rounded-lg overflow-hidden border">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Preview da imagem selecionada
+                </Label>
+                <div className="w-40 h-28 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
                   <img 
                     src={selectedGif || formData.image_url} 
                     alt="Preview da categoria"
