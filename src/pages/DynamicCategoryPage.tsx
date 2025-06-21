@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -101,11 +102,11 @@ const DynamicCategoryPage = () => {
             </Button>
             <div className="text-center">
               {/* Category Image Display */}
-              <div className="w-24 h-24 mx-auto mb-6 bg-white/20 rounded-2xl overflow-hidden shadow-lg flex items-center justify-center p-3">
+              <div className="w-24 h-24 mx-auto mb-6 bg-white rounded-2xl overflow-hidden shadow-lg flex items-center justify-center p-4">
                 <img 
                   src={getCategoryImage(currentCategory?.image_url)} 
                   alt={currentCategory?.name}
-                  className="w-full h-full object-contain filter brightness-0"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
