@@ -4,16 +4,18 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CalculatorWelcome from '@/components/calculator/CalculatorWelcome';
 import CalculatorQuestionnaire from '@/components/calculator/CalculatorQuestionnaire';
-import LeadCaptureForm from '@/components/calculator/LeadCaptureForm';
+import EnhancedLeadCaptureForm from '@/components/calculator/EnhancedLeadCaptureForm';
 import CalculatorResults from '@/components/calculator/CalculatorResults';
 import ProgressIndicator from '@/components/calculator/ProgressIndicator';
-import { CalculatorInput, RegistrationData, Phase } from '@/components/calculator/types';
+import { CalculatorInput, Phase } from '@/components/calculator/types';
 import { CalculationEngine, CalculationResult } from '@/components/calculator/CalculationEngine';
+import { useCalculatorLeads } from '@/hooks/useCalculatorLeads';
 import { useToast } from '@/hooks/use-toast';
 
 const Calculator = () => {
   const [currentPhase, setCurrentPhase] = useState<Phase>('welcome');
   const [currentStep, setCurrentStep] = useState(1);
+  const { trackCalculatorSession } = useCalculatorLeads();
   const { toast } = useToast();
   
   const [calculatorData, setCalculatorData] = useState<CalculatorInput>({
@@ -29,30 +31,20 @@ const Calculator = () => {
     fispqDisponivel: false,
     episFornecidosUtilizados: false,
   });
-  
-  const [registrationData, setRegistrationData] = useState<RegistrationData>({
-    fullName: '',
-    companyName: '',
-    businessEmail: '',
-    phone: '',
-    cnpj: '',
-    companySegment: '',
-    jobTitle: '',
-    lgpdConsent: false,
-  });
 
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
 
   const updateCalculatorData = (data: Partial<CalculatorInput>) => {
-    setCalculatorData(prev => ({ ...prev, ...data }));
-  };
-
-  const updateRegistrationData = (data: Partial<RegistrationData>) => {
-    setRegistrationData(prev => ({ ...prev, ...data }));
+    const updatedData = { ...calculatorData, ...data };
+    setCalculatorData(updatedData);
+    
+    // Track session data for analytics
+    trackCalculatorSession(updatedData, false);
   };
 
   const handleStartCalculation = () => {
     setCurrentPhase('questionnaire');
+    trackCalculatorSession({ phase: 'started' }, false);
   };
 
   const handleNextStep = () => {
@@ -63,6 +55,9 @@ const Calculator = () => {
       const result = CalculationEngine.calculate(calculatorData);
       setCalculationResult(result);
       setCurrentPhase('lead-capture');
+      
+      // Track completion of questionnaire
+      trackCalculatorSession({ ...calculatorData, phase: 'questionnaire_completed' }, false);
       
       toast({
         title: "Cálculo realizado com sucesso!",
@@ -80,13 +75,14 @@ const Calculator = () => {
   };
 
   const handleLeadCaptureSubmit = () => {
-    // Here you would normally save the lead data to database/CRM
+    // Mark session as completed
+    trackCalculatorSession({ ...calculatorData, phase: 'lead_captured' }, true);
     
     setCurrentPhase('results');
     
     toast({
-      title: "Orçamento gerado com sucesso!",
-      description: "Confira sua análise personalizada de necessidades.",
+      title: "Relatório será enviado em breve!",
+      description: "Verifique seu email para acessar a análise completa.",
     });
   };
 
@@ -121,16 +117,6 @@ const Calculator = () => {
       fispqDisponivel: false,
       episFornecidosUtilizados: false,
     });
-    setRegistrationData({
-      fullName: '',
-      companyName: '',
-      businessEmail: '',
-      phone: '',
-      cnpj: '',
-      companySegment: '',
-      jobTitle: '',
-      lgpdConsent: false,
-    });
   };
 
   return (
@@ -156,11 +142,11 @@ const Calculator = () => {
         />
       )}
 
-      {/* Lead Capture Phase */}
-      {currentPhase === 'lead-capture' && (
-        <LeadCaptureForm
-          data={registrationData}
-          updateData={updateRegistrationData}
+      {/* Enhanced Lead Capture Phase */}
+      {currentPhase === 'lead-capture' && calculationResult && (
+        <EnhancedLeadCaptureForm
+          calculatorData={calculatorData}
+          calculationResult={calculationResult}
           onSubmit={handleLeadCaptureSubmit}
           onBack={handleLeadCaptureBack}
         />
