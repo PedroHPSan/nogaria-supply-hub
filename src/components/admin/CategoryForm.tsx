@@ -9,15 +9,13 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Category } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
+import { DEFAULT_CATEGORY_IMAGE } from '@/constants/defaultImages';
 
 interface CategoryFormProps {
   category?: Category | null;
   onSave: () => void;
   onCancel: () => void;
 }
-
-// Default image for all categories - modern minimalist design
-const DEFAULT_CATEGORY_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxyZWN0IHg9IjYwIiB5PSI2MCIgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTIiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuOSIvPgo8cGF0aCBkPSJNODUgODVIMTE1VjExNUg4NVY4NVoiIGZpbGw9InVybCgjZ3JhZGllbnQxX2xpbmVhcl8xXzEpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MF9saW5lYXJfMV8xIiB4MT0iMCIgeTE9IjAiIHgyPSIyMDAiIHkyPSIyMDAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzM5QjJEQiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDFfbGluZWFyXzFfMSIgeDE9Ijg1IiB5MT0iODUiIHgyPSIxMTUiIHkyPSIxMTUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzM5QjJEQiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxMEI5ODEiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K';
 
 const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
   const [formData, setFormData] = useState({
@@ -66,7 +64,7 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
         name: formData.name,
         slug: formData.slug,
         description: formData.description || null,
-        image_url: DEFAULT_CATEGORY_IMAGE // Always use default image
+        image_url: DEFAULT_CATEGORY_IMAGE
       };
 
       let error;
@@ -149,23 +147,6 @@ const CategoryForm = ({ category, onSave, onCancel }: CategoryFormProps) => {
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 rows={3}
               />
-            </div>
-
-            {/* Preview of default image */}
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                Imagem da categoria
-              </Label>
-              <div className="w-40 h-28 bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
-                <img 
-                  src={DEFAULT_CATEGORY_IMAGE} 
-                  alt="Imagem padrão da categoria"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <p className="text-sm text-gray-500 mt-2">
-                Uma imagem padrão será automaticamente atribuída a esta categoria.
-              </p>
             </div>
           </CardContent>
         </Card>
