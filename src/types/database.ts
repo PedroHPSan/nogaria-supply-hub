@@ -14,7 +14,7 @@ export interface UserRole {
   id: string;
   user_id: string;
   role: 'admin' | 'user';
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface Category {
@@ -66,7 +66,7 @@ export interface Order {
   id: string;
   user_id?: string | null;
   order_number: string;
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | null;
   payment_method?: 'pix' | 'credit_card' | 'bank_slip' | 'b2b_invoice' | null;
   total_amount: number;
   shipping_address?: string | null;
@@ -122,7 +122,7 @@ export interface ContactSubmission {
   email: string;
   telefone: string;
   mensagem: string;
-  status: 'new' | 'in_progress' | 'resolved' | 'closed';
+  status: 'new' | 'in_progress' | 'resolved' | 'closed' | null;
   created_at: string;
   updated_at: string;
 }
@@ -134,7 +134,7 @@ export interface JobApplication {
   linkedin_portfolio?: string | null;
   mensagem: string;
   curriculo_url?: string | null;
-  status: 'received' | 'reviewing' | 'interview' | 'hired' | 'rejected';
+  status: 'received' | 'reviewing' | 'interview' | 'hired' | 'rejected' | null;
   created_at: string;
   updated_at: string;
 }

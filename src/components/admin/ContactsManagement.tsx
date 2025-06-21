@@ -67,7 +67,7 @@ const ContactsManagement = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | null) => {
     const statusConfig = {
       'new': { label: 'Nova', variant: 'default' as const },
       'in_progress': { label: 'Em Progresso', variant: 'secondary' as const },

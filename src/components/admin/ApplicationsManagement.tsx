@@ -67,7 +67,7 @@ const ApplicationsManagement = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | null) => {
     const statusConfig = {
       'received': { label: 'Recebida', variant: 'default' as const },
       'reviewing': { label: 'Em Análise', variant: 'secondary' as const },

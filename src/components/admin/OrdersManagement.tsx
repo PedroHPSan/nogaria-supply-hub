@@ -41,7 +41,7 @@ const OrdersManagement = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | null) => {
     const statusConfig = {
       'pending': { label: 'Pendente', variant: 'secondary' as const },
       'confirmed': { label: 'Confirmado', variant: 'default' as const },
