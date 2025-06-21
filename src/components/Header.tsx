@@ -62,14 +62,19 @@ const Header = () => {
             <span>📧 vendas@nogaria.com.br</span>
           </div>
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2">
+            <a 
+              href="https://wa.me/5591993717808"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:text-neon-green transition-colors"
+            >
               <img 
                 src="/lovable-uploads/65be387d-156c-4cb1-aa9a-e3ba406c6226.png" 
                 alt="WhatsApp Business" 
                 className="w-4 h-4"
               />
               <span>WhatsApp Business</span>
-            </div>
+            </a>
             <Button 
               variant="ghost" 
               size="sm"
