@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -101,7 +100,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
     }
 
     if (!formData.sku.trim()) {
-      errors.sku = 'Código SKU é obrigatório';
+      errors.sku = 'ID do produto é obrigatório';
     }
 
     if (!formData.description.trim()) {
@@ -234,7 +233,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="sku">Código SKU *</Label>
+                <Label htmlFor="sku">ID do produto *</Label>
                 <Input
                   id="sku"
                   value={formData.sku}
