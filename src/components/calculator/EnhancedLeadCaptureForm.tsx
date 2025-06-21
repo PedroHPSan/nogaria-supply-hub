@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Mail, Building, User, Phone, FileText, Briefcase } from 'lucide-react';
 import { useCalculatorLeads, CalculatorLead } from '@/hooks/useCalculatorLeads';
-import { CalculationResult } from '../CalculationEngine';
+import { CalculationResult } from './CalculationEngine';
 
 interface EnhancedLeadCaptureFormProps {
   calculatorData: any;

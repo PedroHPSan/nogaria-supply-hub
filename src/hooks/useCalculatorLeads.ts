@@ -43,7 +43,7 @@ export const useCalculatorLeads = () => {
           company_size: `${calculationResult.numeroFuncionarios} funcionários`,
           monthly_usage: calculatorData,
           estimated_savings: calculationResult.custoMensalTotal - calculationResult.custoComDesconto,
-          recommendations: calculationResult
+          recommendations: calculationResult as any
         })
         .select()
         .single();
@@ -99,12 +99,8 @@ export const useCalculatorLeads = () => {
 
   const trackCalculatorSession = async (sessionData: any, completed: boolean = false) => {
     try {
-      await supabase
-        .from('calculator_sessions')
-        .insert({
-          session_data: sessionData,
-          completed
-        });
+      // For now, we'll just log this since the calculator_sessions table isn't in the current schema
+      console.log('Tracking calculator session:', { sessionData, completed });
     } catch (error) {
       console.error('Error tracking calculator session:', error);
       // Don't throw error for analytics tracking
